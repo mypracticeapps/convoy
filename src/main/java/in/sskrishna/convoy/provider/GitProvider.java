@@ -1,12 +1,26 @@
 package in.sskrishna.convoy.provider;
 
+import in.sskrishna.convoy.model.Commit;
 import in.sskrishna.convoy.model.GitRepo;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 public interface GitProvider {
-    public boolean exits(GitRepo repo);
-    public void clone(GitRepo repo) throws GitAPIException;
-    public void fetch(GitRepo repo) throws GitAPIException, IOException;
+    boolean exits(GitRepo repo);
+
+    void clone(GitRepo repo) throws GitAPIException;
+
+    void fetch(GitRepo repo) throws GitAPIException, IOException;
+
+    Set<String> listBranches(GitRepo repo) throws IOException, GitAPIException;
+
+    String getLatestCommit(GitRepo repo, String branch) throws IOException, GitAPIException;
+
+    Map<String, Commit> listCommits(GitRepo repo) throws IOException, GitAPIException;
+
+    Map<String, Commit> listCommits(GitRepo repo, String branch) throws IOException, GitAPIException;
 }
