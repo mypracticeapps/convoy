@@ -3,15 +3,13 @@ package in.sskrishna.convoy.web;
 import in.sskrishna.convoy.model.Commit;
 import in.sskrishna.convoy.model.CommitSet;
 import in.sskrishna.convoy.repository.CommitRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController()
 @RequestMapping(path = "/api/v1")
+@CrossOrigin
 public class CommitCtrl {
 
     private final CommitRepository commitRepository;
