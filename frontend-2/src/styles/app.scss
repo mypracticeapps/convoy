@@ -1,0 +1,37 @@
+* {
+    box-sizing: border-box !important;
+}
+
+html,
+body,
+.root-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+.root-container {
+    .nav-container {
+        height: 56px;
+    }
+    .root-body {
+        height: calc( 100% - 56px);
+        >* {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+    }
+}
+
+.repo-container {
+    height: 100%;
+    display: flex;
+    .repo-nav {
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: 300px;
+        .repo-title {
+            border-bottom: 1px solid #ddd;
+        }
+    }
+}
