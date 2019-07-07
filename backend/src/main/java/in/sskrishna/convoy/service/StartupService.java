@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @Slf4j
@@ -27,6 +29,7 @@ public class StartupService {
     }
 
     public void startUp() throws GitAPIException, IOException {
+        ZonedDateTime now = ZonedDateTime.now();
         log.info("Found {} repositories", this.gitRepository.findAll().size());
 
         for (GitRepo repository : this.gitRepository.findAll()) {
@@ -37,6 +40,7 @@ public class StartupService {
             this.gitService.refresh(repository);
         }
 
-        log.info("Startup process finished");
+        long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
+        log.info("Startup process finished. time taken: {} sec", seconds);
     }
 }

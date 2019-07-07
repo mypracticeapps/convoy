@@ -1,7 +1,6 @@
 package in.sskrishna.convoy.service;
 
 import in.sskrishna.convoy.model.Commit;
-import in.sskrishna.convoy.model.CommitSet;
 import in.sskrishna.convoy.model.GitRepo;
 import in.sskrishna.convoy.provider.GitProvider;
 import in.sskrishna.convoy.repository.CommitRepository;
@@ -14,8 +13,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,29 +39,13 @@ public class GitService {
         this.gitProvider.fetch(repo);
 
         log.info("updating branch info for :" + repo.getId());
-
-        Set<String> branchNames = gitProvider.listBranches(repo);
-        for (String branchName : branchNames) {
-            String latestCommit = this.gitProvider.getLatestCommit(repo, branchName);
-            GitRepo.Branch branch = new GitRepo.Branch(branchName, latestCommit);
-            repo.addBranch(branch);
-        }
+        Set<GitRepo.Branch> branches = gitProvider.getBranches(repo);
+        repo.setBranches(branches);
         this.gitRepository.save(repo);
 
         log.info("updating commit history on repo: " + repo.getId());
         Map<String, Commit> commitMap = this.gitProvider.listCommits(repo);
-        for (GitRepo.Branch branch : repo.getBranches()) {
-            List<Commit> list = new LinkedList<>();
-            String latestCommit = branch.getLatestCommitId();
-            while (latestCommit != null) {
-                Commit commit = commitMap.get(latestCommit);
-                list.add(commit);
-                latestCommit = commit.getParentId();
-            }
-            CommitSet commitSet = new CommitSet(repo.getId(), branch.getName());
-            commitSet.setCommitList(list);
-            this.commitRepository.save(commitSet);
-        }
+        this.commitRepository.save(commitMap.values());
 
         long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
         log.info("refresh finshed for repo{}, duration: {}", repo.getId(), seconds);

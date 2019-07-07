@@ -22,9 +22,15 @@ public class GitRepo {
     }
 
     @Data
-    @AllArgsConstructor
     public static class Branch {
         private String name;
         private String latestCommitId;
+        private int totalCommits;
+
+        public Branch(String branchName, String id, int size) {
+            this.name = branchName;
+            this.latestCommitId = id;
+            this.totalCommits = size;
+        }
     }
 }

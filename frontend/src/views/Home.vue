@@ -33,18 +33,18 @@
         </div>
       </div>
 
-<!--      <div class="card commit" v-for="commit in commits" :key="commit.id">-->
-<!--        <div class="card-body commit-body">-->
-<!--          <div class="commit-info">-->
-<!--            <p class="font-weight-bold text-left mb-1">{{commit.message}}</p>-->
-<!--            <p class="font-weight-normal text-left author-info">on 01/07/2019 commited by srikrishna.cj@gmail.com</p>-->
-<!--          </div>-->
-<!--          <div class="commit-meta-data">-->
-<!--            <p class="font-weight-normal text-left">324567</p>-->
-<!--            <p class="font-weight-normal text-left">US12345678</p>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
+      <div class="card commit" v-for="commit in commits" :key="commit.id">
+        <div class="card-body commit-body">
+          <div class="commit-info">
+            <p class="font-weight-bold text-left mb-1">{{commit.message}}</p>
+            <p class="font-weight-normal text-left author-info">on 01/07/2019 commited by srikrishna.cj@gmail.com</p>
+          </div>
+          <div class="commit-meta-data">
+            <p class="font-weight-normal text-left">324567</p>
+            <p class="font-weight-normal text-left">US12345678</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

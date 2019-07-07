@@ -6,12 +6,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.TextProgressMonitor;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -23,6 +19,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 @Service
 public class GitProviderImpl implements GitProvider {
@@ -71,39 +68,38 @@ public class GitProviderImpl implements GitProvider {
         }
     }
 
-    @Override
-    public Set<String> listBranches(GitRepo repo) throws IOException, GitAPIException {
+    private Set<String> listBranchNames(GitRepo repo) throws IOException, GitAPIException {
         Git git = this.open(repo);
         Set<String> branchSet = new HashSet<>();
         List<Ref> branchRefList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
         for (Ref branchRef : branchRefList) {
-            String name = branchRef.getName().substring(branchRef.getName().lastIndexOf("/") + 1, branchRef.getName().length());
+            String name = branchRef.getName().replace("refs/heads/", "");
             branchSet.add(name);
         }
         return branchSet;
     }
 
     @Override
-    // TODO need refactoring or git log shell command
-    public String getLatestCommit(GitRepo repo, String branchName) throws IOException, GitAPIException {
-        Git git = this.open(repo);
+    public Set<GitRepo.Branch> getBranches(GitRepo repo) throws IOException, GitAPIException {
+        Set<String> branchSet = this.listBranchNames(repo);
+        Set<GitRepo.Branch> branches = new HashSet<>();
+        for (String branchName : branchSet) {
+            Map<String, Commit> commitMap = this.listCommits(repo, branchName);
+            Commit latestCommit = this.getLatestCommit(commitMap.values().iterator());
+            int size = commitMap.size();
+            GitRepo.Branch branch = new GitRepo.Branch(branchName, latestCommit.getId(), size);
+            branches.add(branch);
+        }
+        return branches;
+    }
 
-        final List<Ref> branches = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
-        final RevWalk revWalk = new RevWalk(git.getRepository());
-
-        String commitId = branches.stream()
-                .filter(branch -> branch.getName().endsWith(branchName))
-                .map(branch -> {
-                    try {
-                        return revWalk.parseCommit(branch.getObjectId());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .sorted(Comparator.comparing((RevCommit commit) -> commit.getAuthorIdent().getWhen()).reversed())
-                .findFirst().get().getName();
-
-        return commitId;
+    private Commit getLatestCommit(Iterator<Commit> commits) {
+        Commit latestCommit = StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(commits, Spliterator.ORDERED), false)
+                .sorted(this.commitComparator())
+                .findFirst()
+                .get();
+        return latestCommit;
     }
 
     @Override
@@ -111,9 +107,9 @@ public class GitProviderImpl implements GitProvider {
         Repository repoInterface = new FileRepository(repo.getLocalDir());
         Git git = new Git(repoInterface);
 
-        Iterable<RevCommit> commitItr = git.log().add(repoInterface.resolve("refs/heads/" + branch)).call();
-        return this.readCommits(commitItr);
-
+        ObjectId objectId = repoInterface.resolve("refs/heads/" + branch);
+        Iterable<RevCommit> commitItr = git.log().add(objectId).call();
+        return this.readCommits(commitItr, repo);
     }
 
     @Override
@@ -122,14 +118,15 @@ public class GitProviderImpl implements GitProvider {
         Git git = new Git(repoInterface);
 
         Iterable<RevCommit> commitItr = git.log().all().call();
-        return this.readCommits(commitItr);
+        return this.readCommits(commitItr, repo);
     }
 
-    private Map<String, Commit> readCommits(Iterable<RevCommit> commitItr) {
+    private Map<String, Commit> readCommits(Iterable<RevCommit> commitItr, GitRepo repo) {
         Map<String, Commit> commitMap = new HashMap<>();
         commitItr.forEach((commitRef) -> {
             Commit commit = new Commit();
             commit.setId(commitRef.getId().getName());
+            commit.setRepoId(repo.getId());
             commit.setMessage(commitRef.getShortMessage());
             if (commitRef.getParentCount() >= 1) {
                 String id = commitRef.getParent(0).getName();
@@ -142,7 +139,7 @@ public class GitProviderImpl implements GitProvider {
         return commitMap;
     }
 
-    private Commit.Person toPerson(PersonIdent pi){
+    private Commit.Person toPerson(PersonIdent pi) {
         Commit.Person person = new Commit.Person();
 
         person.setName(pi.getName());
@@ -154,5 +151,22 @@ public class GitProviderImpl implements GitProvider {
 
         person.setTime(ldt);
         return person;
+    }
+
+    private Comparator<Commit> commitComparator() {
+        Comparator<Commit> commitComparator = new Comparator<Commit>() {
+            @Override
+            public int compare(Commit commit, Commit t1) {
+                if (commit.getCommitter().getTime().isBefore(t1.getCommitter().getTime())) {
+                    return 1;
+                } else if (commit.getCommitter().getTime().isAfter(t1.getCommitter().getTime())) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        };
+
+        return commitComparator;
     }
 }

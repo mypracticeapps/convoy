@@ -16,9 +16,7 @@ public interface GitProvider {
 
     void fetch(GitRepo repo) throws GitAPIException, IOException;
 
-    Set<String> listBranches(GitRepo repo) throws IOException, GitAPIException;
-
-    String getLatestCommit(GitRepo repo, String branch) throws IOException, GitAPIException;
+    Set<GitRepo.Branch> getBranches(GitRepo repo) throws IOException, GitAPIException;
 
     Map<String, Commit> listCommits(GitRepo repo) throws IOException, GitAPIException;
 
