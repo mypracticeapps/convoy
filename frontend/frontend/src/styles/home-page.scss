@@ -1,0 +1,80 @@
+.repo-container {
+    height: 100%;
+    display: flex;
+}
+
+.repo-nav {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 300px;
+    border-right: 1px solid #e1e4e8;
+    overflow-y:scroll;
+}
+
+.repo-title {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e1e4e8;
+    h5 {
+        margin-bottom: 0.2rem;
+    }
+
+    h6 {
+        margin-bottom: 0;
+    }
+
+    &:hover, &.selected {
+        background-color: #e1e4e8;
+    }
+}
+
+.repo-body {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow-y: scroll;
+    padding: 2rem 3rem;
+
+    .toolbar {
+        margin-bottom: 1rem;
+
+        >* {
+            margin-right: 1rem;
+        }
+    }
+}
+
+.commit-body {
+    display: flex;
+    padding: 1rem;
+
+    .author-info {
+        font-size: 0.9rem;
+        color: #696969;
+    }
+}
+
+.commit-meta-data {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 150px;
+}
+
+.commit-meta-data>p {
+    margin-bottom: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.commit-info {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.commit-info p {
+    margin-bottom: 0;
+}
+
+.commit {
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
