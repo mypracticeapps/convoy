@@ -8,6 +8,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 @Service
@@ -42,6 +44,7 @@ public class GitProviderImpl implements GitProvider {
 
         Git git = Git.cloneRepository()
                 .setBare(true)
+                .setProgressMonitor(new TextProgressMonitor(new PrintWriter(System.out)))
                 .setCredentialsProvider(credentialsProvider)
                 .setURI(repo.getUrl())
                 .setDirectory(new File(repo.getLocalDir()))

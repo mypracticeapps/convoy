@@ -37,7 +37,7 @@ public class GitRepoLoader implements ApplicationRunner {
         TypeReference<List<GitRepo>> tRef = new TypeReference<List<GitRepo>>() {
         };
 
-        List<GitRepo> repoSet = mapper.readValue(resource.getFile(), tRef);
+        List<GitRepo> repoSet = mapper.readValue(resource.getInputStream(), tRef);
         repoSet.forEach((conf -> {
             conf.setName(getRepoName(conf.getUrl()));
             conf.setOwner(getOwner(conf.getUrl()));

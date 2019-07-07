@@ -12,3 +12,9 @@
 
 - url: https://github.com/drone/drone.git
   secret: 0451eba6750c42a352f1a3590b0753bec4569904
+
+- url: https://github.com/kristoferjoseph/flexboxgrid.git
+  secret: 0451eba6750c42a352f1a3590b0753bec4569904
+
+- url: https://github.com/tailwindcss/tailwindcss
+  secret: 0451eba6750c42a352f1a3590b0753bec4569904
