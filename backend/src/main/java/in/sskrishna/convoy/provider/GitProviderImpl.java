@@ -6,6 +6,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TextProgressMonitor;
@@ -19,12 +20,14 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
 public class GitProviderImpl implements GitProvider {
 
-    private Git open(GitRepo repo) throws IOException {
+    public Git open(GitRepo repo) throws IOException {
         return Git.open(new File(repo.getLocalDir()));
     }
 
@@ -132,8 +135,24 @@ public class GitProviderImpl implements GitProvider {
                 String id = commitRef.getParent(0).getName();
                 commit.setParentId(id);
             }
+            commit.setAuthor(this.toPerson(commitRef.getAuthorIdent()));
+            commit.setCommitter(this.toPerson(commitRef.getCommitterIdent()));
             commitMap.put(commit.getId(), commit);
         });
         return commitMap;
+    }
+
+    private Commit.Person toPerson(PersonIdent pi){
+        Commit.Person person = new Commit.Person();
+
+        person.setName(pi.getName());
+        person.setEmail(pi.getEmailAddress());
+
+        ZoneId zoneId = pi.getTimeZone().getDefault().toZoneId();
+        LocalDateTime ldt = LocalDateTime.ofInstant(pi.getWhen().toInstant(),
+                zoneId);
+
+        person.setTime(ldt);
+        return person;
     }
 }
