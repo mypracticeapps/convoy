@@ -21,14 +21,13 @@
           </div>
         </div>
         <div class="btn-group">
-          <button type="button" class="btn btn-danger">refresh</button>
+          <button type="button" class="btn btn-danger">refresh ui</button>
           <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="sr-only">Toggle Dropdown</span>
           </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">branch 1</a>
-            <a class="dropdown-item" href="#">branch 2</a>
-            <a class="dropdown-item" href="#">branch 3</a>
+            <a class="dropdown-item" href="#">refresh git</a>
+            <a class="dropdown-item" href="#">refresh stories</a>
           </div>
         </div>
       </div>
@@ -37,13 +36,19 @@
         <div class="card-body commit-body">
           <div class="commit-info">
             <p class="font-weight-bold text-left mb-1">{{commit.message}}</p>
-            <p class="font-weight-normal text-left author-info">on 01/07/2019 commited by srikrishna.cj@gmail.com</p>
+            <p class="font-weight-normal text-left author-info">
+              commited on {{commit.committer.time.substring(0,10)}} by {{commit.committer.name}}
+            </p>
           </div>
           <div class="commit-meta-data">
-            <p class="font-weight-normal text-left">324567</p>
-            <p class="font-weight-normal text-left">US12345678</p>
+            <p class="font-weight-normal text-right">{{commit.id.substring(0,7)}}</p>
+            <p class="font-weight-normal text-right">US123456</p>
           </div>
         </div>
+      </div>
+
+      <div class="footer text-center">
+        <button class="btn btn-small btn-primary" :disabled="isLoadMoreBtnDisabled" @click="loadMoreCommits()">load more</button>
       </div>
     </div>
   </div>
@@ -59,6 +64,7 @@ export default {
     return {
       isReposLoading: true,
       isCommitsLoading: true,
+      isLoadMoreBtnDisabled: false,
       repos: [],
       commits: [],
       selectedRepo: -1,
@@ -76,23 +82,43 @@ export default {
     setSelectedRepo(index){
       this.selectedRepo = index;
       this.selectedBranch = "master";
+      this.isLoadMoreBtnDisabled = false;
       this.fetchCommits();
     },
     setSelectedBranch(branch){
       this.selectedBranch = branch;
-      console.log("selected branch: " + branch);
+      this.isLoadMoreBtnDisabled = false;
       this.fetchCommits();
     },
     fetchCommits(){
       if(this.selectedRepo == -1) return;
       let repo = this.repos[this.selectedRepo];
-      RepoAPI.getCommits(repo, this.selectedBranch).then(commits => this.commits=commits);
+      RepoAPI.getCommits(repo, "branch", this.selectedBranch).then(commits => this.commits=commits);
+    },
+    loadMoreCommits(){
+      if(this.selectedRepo == -1) return;
+      let repo = this.repos[this.selectedRepo];
+      let lastCommitId = this.commits[this.commits.length - 1].id;
+      if(lastCommitId){
+          RepoAPI
+            .getCommits(repo, "commit", lastCommitId)
+            .then(commits => {
+                console.log(commits);
+                if(commits.length == 0){
+                  this.isLoadMoreBtnDisabled = true; // no more commits disable button
+                }
+                this.commits.push(...commits);
+              });
+      }
     }
   },
   mounted() {
     RepoAPI.getRepos().then(repos=>{
       this.isReposLoading = false;
       this.repos = repos;
+      if(this.repos.length > 0){
+        this.setSelectedRepo(0);
+      }
     });
   }
 };

@@ -10,8 +10,12 @@ let RepoAPI = {
         return axios.get(url).then(response=> {return response.data});
     },
 
-    getCommits(repo, branch){
-        let url = "http://localhost:8080/api/v1/commits?repoId="+repo.id+"&branchName="+branch;
+    getCommits(repo, searchBy, searchTerm){
+        let repoId = "repoId=" + repo.id + "&";
+        searchBy = "searchBy=" + searchBy + "&";
+        searchTerm = "searchTerm=" + searchTerm + "&";
+        let size = "size=" + 30;
+        let url = "http://localhost:8080/api/v1/commits?" + repoId + searchBy + searchTerm + size;
         return axios.get(url).then(response=> {return response.data});
     }
 };
