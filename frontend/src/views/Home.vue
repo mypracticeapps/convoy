@@ -5,8 +5,8 @@
 
       <div class="repo-title" v-for="(repo, index) in repos" :key="repo.id"
            @click="setSelectedRepo(index)" :class="{selected: selectedRepo == index}">
-        <h5 class="text-left">{{repo.name}}</h5>
-        <h6 class="text-left">{{repo.id}}</h6>
+        <h6 class="text-left">{{repo.name}}</h6>
+        <p class="text-left mb-0">{{repo.id}}</p>
       </div>
     </div>
     <div class="repo-body">
@@ -47,8 +47,8 @@
         </div>
       </div>
 
-      <div class="footer text-center">
-        <button class="btn btn-small btn-primary" :disabled="isLoadMoreBtnDisabled" @click="loadMoreCommits()">load more</button>
+      <div class="footer text-center mt-5 mb-5">
+        <button class="btn btn-lg btn-primary load-more-commit-btn" :disabled="isLoadMoreBtnDisabled" @click="loadMoreCommits()">load more</button>
       </div>
     </div>
   </div>

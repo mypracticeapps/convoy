@@ -11,10 +11,10 @@ body,
 
 .root-container {
     .nav-container {
-        height: 56px;
+        height: 68px;
     }
     .root-body {
-        height: calc( 100% - 56px);
+        height: calc( 100% - 68px);
         >* {
             height: 100%;
             width: 100%;

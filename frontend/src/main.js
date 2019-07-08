@@ -6,6 +6,7 @@ import './registerServiceWorker'
 
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import '@/styles/shards.css'
 import '@/styles/colors.css'
 import '@/styles/app.scss'
 import '@/styles/home-page.scss'
