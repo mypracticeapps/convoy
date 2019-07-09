@@ -12,8 +12,8 @@
     <div class="repo-body">
       <div class="toolbar">
         <div class="btn-group pull-left">
-          <button type="button" class="btn btn-danger">master</button>
-          <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-secondary">{{selectedBranch}}</button>
+          <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="sr-only">Toggle Dropdown</span>
           </button>
           <div class="dropdown-menu" >
@@ -21,8 +21,8 @@
           </div>
         </div>
         <div class="btn-group">
-          <button type="button" class="btn btn-danger">refresh ui</button>
-          <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-secondary">refresh ui</button>
+          <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="sr-only">Toggle Dropdown</span>
           </button>
           <div class="dropdown-menu">
