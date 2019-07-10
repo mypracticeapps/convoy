@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -60,12 +61,17 @@ public class GitProviderImpl implements GitProvider {
 
         List<RemoteConfig> remotes = git.remoteList().call();
         for (RemoteConfig remote : remotes) {
-            git.fetch().setCredentialsProvider(credentialsProvider)
+            git
+                    .fetch()
+                    .setCheckFetchedObjects(true)
+                    .setCredentialsProvider(credentialsProvider)
                     .setForceUpdate(true)
                     .setRemote(remote.getName())
                     .setRefSpecs(remote.getFetchRefSpecs())
                     .call();
         }
+
+
     }
 
     private Set<String> listBranchNames(GitRepo repo) throws IOException, GitAPIException {
@@ -93,6 +99,56 @@ public class GitProviderImpl implements GitProvider {
         return branches;
     }
 
+    @Override
+    public Map<String, Commit> listCommits(GitRepo repo) throws IOException, GitAPIException {
+        Repository repoInterface = new FileRepository(repo.getLocalDir());
+        Git git = new Git(repoInterface);
+
+        Iterable<RevCommit> commitItr = git.log().all().call();
+        Map<String, Commit> commitMap = this.readCommits(commitItr, repo);
+        this.buildChildGraph(repo, commitMap);
+        return commitMap;
+    }
+
+    private void buildChildGraph(GitRepo repo, Map<String, Commit> commitMap) throws IOException, GitAPIException {
+        Set<GitRepo.Branch> branches = this.getBranches(repo);
+        Stack<Pair> stack = new Stack<>();
+        Set<String> visited = new HashSet<>();
+        Set<String> commitIdSet = commitMap.values().stream().map(commit -> commit.getId()).collect(Collectors.toSet());
+
+        for (GitRepo.Branch branch : branches) {
+            Pair pair = new Pair(branch.getLatestCommitId(), null);
+            stack.push(pair);
+        }
+
+        while (!stack.isEmpty()) {
+            Pair currentPair = stack.pop();
+
+            String currentCommitId = currentPair.getParentId();
+            String childCommitId = currentPair.getChildId();
+
+            if (currentCommitId != null) {
+                Commit currentCommit = commitMap.get(currentCommitId);
+                currentCommit.addChildId(childCommitId);
+
+                if (!visited.contains(currentCommitId)) {
+                    for (String parentId : currentCommit.getParentIds()) {
+                        Pair pair = new Pair(parentId, currentCommitId);
+                        stack.push(pair);
+                    }
+                }
+
+                visited.add(currentCommitId);
+            }
+        }
+        // will be useful to debug when tag feature is implemented
+//        System.out.println("Total: " + commitIdSet.size() + " Visited: " + visited.size() + " Stack size: " + stack.size());
+//        for (String diff : this.difference(commitIdSet, visited)) {
+//            System.out.println("Commit diff: " + diff);
+//        }
+//        Assert.assertEquals(visited.size(), commitMap.values().size(), " expected and actual does not match");
+    }
+
     private Commit getLatestCommit(Iterator<Commit> commits) {
         Commit latestCommit = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(commits, Spliterator.ORDERED), false)
@@ -102,22 +158,12 @@ public class GitProviderImpl implements GitProvider {
         return latestCommit;
     }
 
-    @Override
-    public Map<String, Commit> listCommits(GitRepo repo, String branch) throws IOException, GitAPIException {
+    private Map<String, Commit> listCommits(GitRepo repo, String branch) throws IOException, GitAPIException {
         Repository repoInterface = new FileRepository(repo.getLocalDir());
         Git git = new Git(repoInterface);
 
         ObjectId objectId = repoInterface.resolve("refs/heads/" + branch);
         Iterable<RevCommit> commitItr = git.log().add(objectId).call();
-        return this.readCommits(commitItr, repo);
-    }
-
-    @Override
-    public Map<String, Commit> listCommits(GitRepo repo) throws IOException, GitAPIException {
-        Repository repoInterface = new FileRepository(repo.getLocalDir());
-        Git git = new Git(repoInterface);
-
-        Iterable<RevCommit> commitItr = git.log().all().call();
         return this.readCommits(commitItr, repo);
     }
 
@@ -128,9 +174,9 @@ public class GitProviderImpl implements GitProvider {
             commit.setId(commitRef.getId().getName());
             commit.setRepoId(repo.getId());
             commit.setMessage(commitRef.getShortMessage());
-            if (commitRef.getParentCount() >= 1) {
-                String id = commitRef.getParent(0).getName();
-                commit.setParentId(id);
+            for (RevCommit parentRef : commitRef.getParents()) {
+                String id = parentRef.getId().getName();
+                commit.addParentId(id);
             }
             commit.setAuthor(this.toPerson(commitRef.getAuthorIdent()));
             commit.setCommitter(this.toPerson(commitRef.getCommitterIdent()));
@@ -168,5 +214,25 @@ public class GitProviderImpl implements GitProvider {
         };
 
         return commitComparator;
+    }
+
+    private static class Pair extends javafx.util.Pair<String, String> {
+        Pair(String parent, String child) {
+            super(parent, child);
+        }
+
+        String getParentId() {
+            return super.getKey();
+        }
+
+        String getChildId() {
+            return super.getValue();
+        }
+    }
+
+    public Set<String> difference(final Set<String> set1, final Set<String> set2) {
+        final Set<String> larger = set1.size() > set2.size() ? set1 : set2;
+        final Set<String> smaller = larger.equals(set1) ? set2 : set1;
+        return larger.stream().filter(n -> !smaller.contains(n)).collect(Collectors.toSet());
     }
 }

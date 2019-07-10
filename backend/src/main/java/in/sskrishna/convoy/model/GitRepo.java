@@ -1,6 +1,5 @@
 package in.sskrishna.convoy.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.HashSet;
@@ -16,10 +15,6 @@ public class GitRepo {
     private String localDir;
 
     private Set<Branch> branches = new HashSet();
-
-    public void addBranch(Branch branch){
-        this.branches.add(branch);
-    }
 
     @Data
     public static class Branch {

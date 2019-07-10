@@ -14,8 +14,20 @@ let RepoAPI = {
         let repoId = "repoId=" + repo.id + "&";
         searchBy = "searchBy=" + searchBy + "&";
         searchTerm = "searchTerm=" + searchTerm + "&";
-        let size = "size=" + 30;
+        let size = "size=" + 50;
         let url = "http://localhost:8080/api/v1/commits?" + repoId + searchBy + searchTerm + size;
+        return axios.get(url).then(response=> {return response.data});
+    },
+
+    refreshGit(repo){
+        let repoId = "repoId=" + repo.id;
+        let url = "http://localhost:8080/api/v1/repos/actions/refresh/git?" + repoId;
+        return axios.get(url).then(response=> {return response.data});
+    }, 
+
+    refreshStories(repo){
+        let repoId = "repoId=" + repo.id;
+        let url = "http://localhost:8080/api/v1/repos/actions/refresh/stories?" + repoId;
         return axios.get(url).then(response=> {return response.data});
     }
 };

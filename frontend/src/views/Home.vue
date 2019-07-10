@@ -21,13 +21,13 @@
           </div>
         </div>
         <div class="btn-group">
-          <button type="button" class="btn btn-secondary">refresh ui</button>
+          <button type="button" class="btn btn-secondary" @click="$refreshUi()">refresh ui</button>
           <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="sr-only">Toggle Dropdown</span>
           </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">refresh git</a>
-            <a class="dropdown-item" href="#">refresh stories</a>
+            <a class="dropdown-item" href="#" @click="$refreshGit()">refresh git</a>
+            <a class="dropdown-item" href="#"  @click="$refreshStories()">refresh stories</a>
           </div>
         </div>
       </div>
@@ -110,6 +110,23 @@ export default {
                 this.commits.push(...commits);
               });
       }
+    },
+    $refreshUi(){
+      this.fetchCommits();
+    },
+    $refreshGit(){
+      if(this.selectedRepo == -1) return;
+      let repo = this.repos[this.selectedRepo];
+      RepoAPI.refreshGit(repo).then(()=>{
+        console.log("Repo is refreshed: " + repo.id);
+      });
+    },
+    $refreshStories(){
+      if(this.selectedRepo == -1) return;
+      let repo = this.repos[this.selectedRepo];
+      RepoAPI.refreshStories(repo).then(()=>{
+        console.log("Stories is refreshed: " + repo.id);
+      });
     }
   },
   mounted() {

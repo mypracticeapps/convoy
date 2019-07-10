@@ -1,10 +1,11 @@
-package in.sskrishna.convoy.service;
+package in.sskrishna.convoy.service.core;
 
 import in.sskrishna.convoy.model.Commit;
 import in.sskrishna.convoy.model.GitRepo;
 import in.sskrishna.convoy.provider.GitProvider;
 import in.sskrishna.convoy.repository.CommitRepository;
 import in.sskrishna.convoy.repository.GitRepoRepository;
+import in.sskrishna.convoy.service.core.locks.RepoRefreshLock;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
