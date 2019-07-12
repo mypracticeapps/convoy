@@ -8,6 +8,7 @@ import io.sskrishna.rest.response.ErrorCodeLookup;
 import io.sskrishna.rest.response.ErrorDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,20 @@ public class StartupService {
                     this.gitService.refresh(repo);
                     this.removeError("repo.initialization.failed", repo);
                     this.gitRepository.save(repo);
+                } catch (InvalidRemoteException exception) {
+                    ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode("repo.invalid.remote");
+                    errorDetail.setCause(exception.getMessage());
+                    repo.getStatus().addError(errorDetail);
+                    this.gitRepository.save(repo);
+                } catch (TransportException exception) {
+                    ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode("repo.invalid.token");
+                    errorDetail.setCause(exception.getMessage());
+                    repo.getStatus().addError(errorDetail);
+                    this.gitRepository.save(repo);
                 } catch (GitAPIException exception) {
                     ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode("repo.initialization.failed");
-                    repo.addError(errorDetail);
+                    errorDetail.setCause(exception.getMessage());
+                    repo.getStatus().addError(errorDetail);
                     this.gitRepository.save(repo);
                 }
             }
@@ -65,7 +77,7 @@ public class StartupService {
     }
 
     private void removeError(String code, GitRepo repo) {
-        Iterator<ErrorDetail> iterator = repo.getErrors().iterator();
+        Iterator<ErrorDetail> iterator = repo.getStatus().getErrors().iterator();
         while (iterator.hasNext()) {
             ErrorDetail detail = iterator.next();
             if (detail.getCode().equals(code)) {

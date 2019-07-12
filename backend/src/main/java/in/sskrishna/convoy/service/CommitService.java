@@ -6,6 +6,7 @@ import in.sskrishna.convoy.repository.CommitRepository;
 import in.sskrishna.convoy.repository.GitRepoRepository;
 import in.sskrishna.convoy.service.core.locks.GlobalKeys;
 import in.sskrishna.convoy.service.core.locks.GlobalLockRepo;
+import in.sskrishna.convoy.validators.CommitValidator;
 import io.sskrishna.rest.response.RestErrorBuilder;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +16,22 @@ import java.util.List;
 @Service
 public class CommitService {
     private final RestErrorBuilder errorBuilder;
+    private final CommitValidator commitValidator;
     private final GitRepoRepository gitRepository;
     private final CommitRepository commitRepository;
 
-    public CommitService(RestErrorBuilder errorBuilder, GitRepoRepository gitRepository, CommitRepository commitRepository) {
+    public CommitService(RestErrorBuilder errorBuilder,
+                         CommitValidator commitValidator,
+                         GitRepoRepository gitRepository,
+                         CommitRepository commitRepository) {
         this.errorBuilder = errorBuilder;
         this.gitRepository = gitRepository;
         this.commitRepository = commitRepository;
+        this.commitValidator = commitValidator;
     }
 
     public List<Commit> getCommitsByBranch(String repoId, String branchName, int size) {
-        this.verifyLockedStatus(GlobalKeys.REPO_INDEX, repoId);
+        this.commitValidator.validateGetCommitsByBranch(repoId, branchName, size);
         GitRepo repo = this.gitRepository.findOne(repoId);
         GitRepo.Branch branch = null;
 
@@ -51,7 +57,7 @@ public class CommitService {
     }
 
     public List<Commit> getCommitsByCommitId(String repoId, String commitId, int size) {
-        this.verifyLockedStatus(GlobalKeys.REPO_INDEX, repoId);
+        this.commitValidator.validateGetCommitsByBranch(repoId, commitId, size);
         Commit previousCommit = (Commit) this.commitRepository.findOne(commitId);
         String nextCommitId = this.getNextCommitId(previousCommit);
         List<Commit> commitList = new LinkedList<>();
@@ -73,12 +79,5 @@ public class CommitService {
         if (commit.getParentIds().size() > 0)
             return commit.getParentIds().first();
         return null;
-    }
-
-    private void verifyLockedStatus(String... keys) {
-        boolean isLocked = GlobalLockRepo.isLocked(keys);
-        if (isLocked) {
-            errorBuilder.restError().throwError(423, "repo.locked");
-        }
     }
 }

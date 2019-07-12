@@ -1,5 +1,6 @@
 package in.sskrishna.convoy.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -34,6 +35,8 @@ public class Commit extends Entity {
     public static class Person {
         private String name;
         private String email;
+
+        @JsonFormat(pattern="yyyy-MM-dd:HH-mm-ss")
         private LocalDateTime time;
     }
 }

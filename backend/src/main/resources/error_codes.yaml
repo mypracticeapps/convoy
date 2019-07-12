@@ -1,11 +1,43 @@
 # ListValidator.class
+
 - code: server.boot.pending
   message: server is booting. please wait for some time.
-  devMessage: server is booting. please wait for some time.
 
 - code: repo.locked
   message: repository is being indexed
-  devMessage: repository is being indexed
+
+- code: repo.initialization.failed
+  message: Failed to initialize repository
+  devMessage: This error occures when JGit failed to clone and index repository.
+
+- code: repo.invalid.remote
+  message: Failed to initialize repository due to Invalid Git url
+
+- code: repo.invalid.token
+  message: Failed to initialize repository due to Invalid Auth Token
+
+- code: repo.id.required
+  message: repository id should not be empty
+
+- code: repo.branch.name.required
+  message: repository id should not be empty
+
+- code: repo.not.found
+  message: no repository found for the id
+
+- code: repo.branch.not.found
+  message: requested branch not found on the repository
+
+- code: repo.commit.not.found
+  message: requested commit not found on the repository
+
+- code: repo.size.invalid
+  message: size should not be in negative values
+  devMessage: size can be either 0 or positive value. 0 being default value by server
+
+- code: repo.form.invalid
+  message: request contains some feild errors
+  devMessage: please see errors tag on the response for more info
 
 - code: code
   message: msg
