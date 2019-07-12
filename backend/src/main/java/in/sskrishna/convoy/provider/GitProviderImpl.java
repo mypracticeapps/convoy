@@ -70,8 +70,6 @@ public class GitProviderImpl implements GitProvider {
                     .setRefSpecs(remote.getFetchRefSpecs())
                     .call();
         }
-
-
     }
 
     private Set<String> listBranchNames(GitRepo repo) throws IOException, GitAPIException {
@@ -216,17 +214,19 @@ public class GitProviderImpl implements GitProvider {
         return commitComparator;
     }
 
-    private static class Pair extends javafx.util.Pair<String, String> {
+    private static class Pair {
+        private org.javatuples.Pair<String,String> origin;
+
         Pair(String parent, String child) {
-            super(parent, child);
+            this.origin = new org.javatuples.Pair<>(parent, child);
         }
 
         String getParentId() {
-            return super.getKey();
+            return this.origin.getValue0();
         }
 
         String getChildId() {
-            return super.getValue();
+            return this.origin.getValue1();
         }
     }
 

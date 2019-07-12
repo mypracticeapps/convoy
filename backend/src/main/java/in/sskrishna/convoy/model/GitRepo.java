@@ -1,5 +1,6 @@
 package in.sskrishna.convoy.model;
 
+import io.sskrishna.rest.response.ErrorDetail;
 import lombok.Data;
 
 import java.util.HashSet;
@@ -15,6 +16,17 @@ public class GitRepo {
     private String localDir;
 
     private Set<Branch> branches = new HashSet();
+
+    private Set<ErrorDetail> warrnings = new HashSet<>();
+    private Set<ErrorDetail> errors = new HashSet<>();
+
+    public void addWarning(ErrorDetail errorDetail) {
+        this.warrnings.add(errorDetail);
+    }
+
+    public void addError(ErrorDetail errorDetail) {
+        this.warrnings.add(errorDetail);
+    }
 
     @Data
     public static class Branch {

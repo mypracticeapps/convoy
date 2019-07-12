@@ -1,0 +1,26 @@
+Rest Status codes Used
+=========================================
+200     OK
+201     Created
+
+400     Bad Request
+401     Unauthorized
+402     Forbidden
+404     Not Found
+412     Precondition Failed
+415     Unsupported Media Type
+422     Unprocessable Entity
+
+421     Server booting
+423     Resource Busy or Task in progress
+
+500     Internal Server Error
+
+
+Rest Status codes may be used in future
+=========================================
+202     Accepted
+204     No Content
+206     Partial Content
+409     Conflict
+410     Resource Gone or Endpoint turned off

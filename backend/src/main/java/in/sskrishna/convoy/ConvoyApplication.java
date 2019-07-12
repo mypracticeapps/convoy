@@ -22,7 +22,6 @@ public class ConvoyApplication {
 
     public static void main(String[] args) throws IOException, GitAPIException {
         SpringApplication.run(ConvoyApplication.class, args);
-
 //		test();
     }
 

@@ -4,26 +4,32 @@ import in.sskrishna.convoy.model.GitRepo;
 import in.sskrishna.convoy.provider.GitProvider;
 import in.sskrishna.convoy.repository.GitRepoRepository;
 import in.sskrishna.convoy.service.core.locks.GlobalLockRepo;
+import io.sskrishna.rest.response.ErrorCodeLookup;
+import io.sskrishna.rest.response.ErrorDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 
 @Service
 @Slf4j
 public class StartupService {
+    private final ErrorCodeLookup errorCodeLookup;
     private final GitRepoRepository gitRepository;
     private final GitService gitService;
     private final GitProvider gitProvider;
 
     @Autowired
-    public StartupService(GitRepoRepository gitRepository,
+    public StartupService(ErrorCodeLookup errorCodeLookup, GitRepoRepository gitRepository,
                           GitProvider gitProvider,
                           GitService gitService) {
+        this.errorCodeLookup = errorCodeLookup;
         this.gitRepository = gitRepository;
         this.gitService = gitService;
         this.gitProvider = gitProvider;
@@ -35,18 +41,36 @@ public class StartupService {
             ZonedDateTime now = ZonedDateTime.now();
             log.info("Found {} repositories", this.gitRepository.findAll().size());
 
-            for (GitRepo repository : this.gitRepository.findAll()) {
-                if (!this.gitProvider.exits(repository)) {
-                    log.info("git repo: {} does not exits. attempting to clone", repository.getId());
-                    this.gitProvider.clone(repository);
+            for (GitRepo repo : this.gitRepository.findAll()) {
+                try {
+                    if (!this.gitProvider.exits(repo)) {
+                        log.info("git repo: {} does not exits. attempting to clone", repo.getId());
+                        this.gitProvider.clone(repo);
+                    }
+                    this.gitService.refresh(repo);
+                    this.removeError("repo.initialization.failed", repo);
+                    this.gitRepository.save(repo);
+                } catch (GitAPIException exception) {
+                    ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode("repo.initialization.failed");
+                    repo.addError(errorDetail);
+                    this.gitRepository.save(repo);
                 }
-                this.gitService.refresh(repository);
             }
 
             long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
             log.info("Startup process finished. time taken: {} sec", seconds);
         } finally {
             GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
+        }
+    }
+
+    private void removeError(String code, GitRepo repo) {
+        Iterator<ErrorDetail> iterator = repo.getErrors().iterator();
+        while (iterator.hasNext()) {
+            ErrorDetail detail = iterator.next();
+            if (detail.getCode().equals(code)) {
+                iterator.remove();
+            }
         }
     }
 }

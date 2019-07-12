@@ -2,7 +2,7 @@ package in.sskrishna.convoy.web;
 
 import in.sskrishna.convoy.model.Commit;
 import in.sskrishna.convoy.service.CommitService;
-import in.sskrishna.convoy.service.core.locks.RepoRefreshLock;
+//import in.sskrishna.convoy.service.core.locks.RepoRefreshLock;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

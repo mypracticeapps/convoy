@@ -1,6 +1,7 @@
 package in.sskrishna.convoy.config;
 
 import in.sskrishna.convoy.service.core.locks.GlobalLockRepo;
+import io.sskrishna.rest.response.RestErrorBuilder;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,11 @@ import java.io.IOException;
 @Component
 @Order(1)
 public class ServerBootMonitorFilter implements Filter {
+    private final RestErrorBuilder errorBuilder;
+
+    public ServerBootMonitorFilter(RestErrorBuilder errorBuilder) {
+        this.errorBuilder = errorBuilder;
+    }
 
     @Override
     public void doFilter(
@@ -19,7 +25,7 @@ public class ServerBootMonitorFilter implements Filter {
             FilterChain chain) throws IOException, ServletException {
         if (GlobalLockRepo.isLocked(GlobalLockRepo.KEYS.SERVER_BOOTING)) {
             HttpServletResponse res = (HttpServletResponse) response;
-            res.setStatus(307);
+            res.setStatus(421);
         } else {
             chain.doFilter(request, response);
         }

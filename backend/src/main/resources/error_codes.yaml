@@ -1,0 +1,12 @@
+# ListValidator.class
+- code: server.boot.pending
+  message: server is booting. please wait for some time.
+  devMessage: server is booting. please wait for some time.
+
+- code: repo.locked
+  message: repository is being indexed
+  devMessage: repository is being indexed
+
+- code: code
+  message: msg
+  devMessage: devMsg

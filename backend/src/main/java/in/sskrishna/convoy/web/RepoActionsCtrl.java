@@ -2,6 +2,7 @@ package in.sskrishna.convoy.web;
 
 import in.sskrishna.convoy.service.RepoActionService;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class RepoActionsCtrl {
     }
 
     @GetMapping("/refresh/git")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public void refreshGit(@RequestParam("repoId") String repoId) throws GitAPIException, IOException {
         this.repoActionService.refreshGit(repoId);
     }
