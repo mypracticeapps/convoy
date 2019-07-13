@@ -45,7 +45,7 @@ public class CommitValidator {
         }
 
         if (size < 0) {
-            formError.rejectField("size", size, "repo.size.invalid");
+            formError.rejectField("size", Integer.valueOf(size), "repo.size.invalid");
         }
 
         if (formError.hasErrors()) {
@@ -73,7 +73,7 @@ public class CommitValidator {
         }
 
         if (size < 0) {
-            formError.rejectField("size", size, "repo.size.invalid");
+            formError.rejectField("size", Integer.valueOf(size), "repo.size.invalid");
         }
 
         if (formError.hasErrors()) {
