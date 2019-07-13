@@ -5,7 +5,6 @@ import in.sskrishna.convoy.model.GitRepo;
 import in.sskrishna.convoy.provider.GitProvider;
 import in.sskrishna.convoy.repository.CommitRepository;
 import in.sskrishna.convoy.repository.GitRepoRepository;
-//import in.sskrishna.convoy.service.core.locks.RepoRefreshLock;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
@@ -16,6 +15,8 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
+
+//import in.sskrishna.convoy.service.core.locks.RepoRefreshLock;
 
 @Service
 @Slf4j

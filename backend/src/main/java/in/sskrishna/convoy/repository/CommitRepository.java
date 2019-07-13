@@ -1,6 +1,5 @@
 package in.sskrishna.convoy.repository;
 
-import in.sskrishna.convoy.model.Entity;
 import org.springframework.stereotype.Service;
 
 @Service

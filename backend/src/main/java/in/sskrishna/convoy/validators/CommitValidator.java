@@ -8,9 +8,7 @@ import in.sskrishna.convoy.repository.GitRepoRepository;
 import in.sskrishna.convoy.service.core.locks.GlobalKeys;
 import in.sskrishna.convoy.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.FormError;
-import io.sskrishna.rest.response.RestError;
 import io.sskrishna.rest.response.RestErrorBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service

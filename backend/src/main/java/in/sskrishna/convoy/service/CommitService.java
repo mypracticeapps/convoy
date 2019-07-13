@@ -4,8 +4,6 @@ import in.sskrishna.convoy.model.Commit;
 import in.sskrishna.convoy.model.GitRepo;
 import in.sskrishna.convoy.repository.CommitRepository;
 import in.sskrishna.convoy.repository.GitRepoRepository;
-import in.sskrishna.convoy.service.core.locks.GlobalKeys;
-import in.sskrishna.convoy.service.core.locks.GlobalLockRepo;
 import in.sskrishna.convoy.validators.CommitValidator;
 import io.sskrishna.rest.response.RestErrorBuilder;
 import org.springframework.stereotype.Service;

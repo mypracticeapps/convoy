@@ -1,21 +1,13 @@
 package in.sskrishna.convoy;
 
-import in.sskrishna.convoy.model.Commit;
 import in.sskrishna.convoy.service.core.StartupService;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @SpringBootApplication
 public class ConvoyApplication {
