@@ -30,6 +30,9 @@ public class CommitService {
 
     public List<Commit> getCommitsByBranch(String repoId, String branchName, int size) {
         this.commitValidator.validateGetCommitsByBranch(repoId, branchName, size);
+        if(size == 0){
+            size = 30;
+        }
         GitRepo repo = this.gitRepository.findOne(repoId);
         GitRepo.Branch branch = null;
 
@@ -56,6 +59,9 @@ public class CommitService {
 
     public List<Commit> getCommitsByCommitId(String repoId, String commitId, int size) {
         this.commitValidator.validateGetCommitsByBranch(repoId, commitId, size);
+        if(size == 0){
+            size = 30;
+        }
         Commit previousCommit = (Commit) this.commitRepository.findOne(commitId);
         String nextCommitId = this.getNextCommitId(previousCommit);
         List<Commit> commitList = new LinkedList<>();
