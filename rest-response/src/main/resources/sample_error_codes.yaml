@@ -1,0 +1,38 @@
+# ListValidator.class
+- code: name.empty_list.vli
+  message: list name should not be empty
+  devMessage: list name should not be empty
+
+- code: name.duplicate_list.vli
+  message: list already exists with same name
+  devMessage: list already exists with same name
+
+- code: id.empty_list.vli
+  message: list id should not be empty
+  devMessage: list id should not be empty
+
+- code: id.not.found_list.vli
+  message: list with this id does not exist on server
+  devMessage: list with this id does not exist on server
+
+
+# TodoValidator.class
+- code: list.id.empty_todo.vli
+  message: list name should not be empty
+  devMessage: list name should not be empty
+
+- code: content.empty_todo.vli
+  message: content should not be null or empty
+  devMessage: content should not be null or empty
+
+- code: id.empty_todo.vli
+  message: list id should not be empty
+  devMessage: list id should not be empty
+
+- code: list.id.not.found_todo.vli
+  message: list with this id does not exist on server
+  devMessage: list with this id does not exist on server
+
+- code: id.not.found_todo.vli
+  message: todo with this id does not exist on server
+  devMessage: todo with this id does not exist on server
