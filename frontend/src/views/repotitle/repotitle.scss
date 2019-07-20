@@ -1,0 +1,48 @@
+.repo-title {
+  $border-size: 8px;
+  padding: 0.8rem 1.5rem;
+  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #e1e4e8;
+  border-left: $border-size solid transparent;
+
+  h6 {
+    margin-bottom: 0.3rem;
+    font-size: 1.3rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  &:hover, &.selected {
+    background-color: #e1e4e8;
+  }
+
+  &.error {
+    border-left: $border-size solid #e74c3c;
+  }
+
+  &.progressrp {
+    border-left: $border-size solid #16a085;
+    background: rgba(22, 160, 133, 0.2);
+  }
+
+  &.queued {
+    border-left: $border-size solid #34495e;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.3rem;
+  }
+
+  .stats > span {
+    margin-right: 1rem;
+    font-size: 0.85rem;
+
+    i {
+      margin-right: 0.25rem;
+    }
+  }
+}

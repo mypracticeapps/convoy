@@ -1,9 +1,0 @@
-repositories:
-  - url: https://github.com/srikrishna-s/jgit.git
-    secret: 0451eba6750c42a352f1a3590b0753bec4569904
-
-  - url: https://github.com/srikrishna-s/boot-starter.git
-    secret: 0451eba6750c42a352f1a3590b0753bec4569904
-
-  - url: https://github.com/srikrishna-s/todo-app.git
-    secret: 0451eba6750c42a352f1a3590b0753bec4569904

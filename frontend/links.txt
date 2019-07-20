@@ -1,0 +1,20 @@
+Table design
+https://demos.creative-tim.com/fresh-bootstrap-table/compact-table.html
+
+commit timeline
+https://www.bootdey.com/snippets/view/bs4-timeline
+
+page seperation
+https://cdn.dribbble.com/users/3093/screenshots/4595009/checks-ui.png
+
+Login
+https://dribbble.com/shots/5326670-Sign-in
+
+card background seperation
+https://cdn.dribbble.com/users/1528/screenshots/1674764/hapidr.png
+
+white blue button background
+https://cdn.dribbble.com/users/23685/screenshots/3225787/dropdown2.png
+
+ci
+https://cdn.dribbble.com/users/278401/screenshots/2793481/freelunchci-ui-dribbble.png

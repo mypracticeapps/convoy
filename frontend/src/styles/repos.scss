@@ -1,0 +1,65 @@
+.repos-new {
+  height: 100%;
+  display: flex;
+  position: relative;
+
+  .repos-new-nav {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 450px;
+    border-right: 1px solid #e1e4e8;
+    overflow-y: auto;
+
+    form {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+
+      > * {
+        flex-grow: 1;
+      }
+
+      .search-wrap > input {
+        //width: 100%;
+        border-radius: 0;
+        border: none;
+        box-shadow: none !important;
+        flex-grow: 1;
+      }
+
+      .sort-field-wrap > .dropdown {
+        //width: 100%;
+
+        button {
+          border-radius: 0;
+          width: 100%;
+        }
+      }
+
+      .sort-direction-wrap {
+        button {
+          border-radius: 0;
+          //font-size: 2rem;
+        }
+      }
+    }
+  }
+
+  .repos-new-content-container {
+    position: relative;
+    flex-grow: 1;
+    flex-shrink: 1;
+    display: flex;
+
+    .repos-new-content {
+      flex-grow: 1
+    }
+  }
+}
+
+.repos-new {
+
+}
+
+//box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);

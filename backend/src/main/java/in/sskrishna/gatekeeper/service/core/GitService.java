@@ -1,0 +1,127 @@
+package in.sskrishna.gatekeeper.service.core;
+
+import in.sskrishna.gatekeeper.model.Commit;
+import in.sskrishna.gatekeeper.model.GitRepo;
+import in.sskrishna.gatekeeper.provider.GitNativeUtil;
+import in.sskrishna.gatekeeper.provider.GitProvider;
+import in.sskrishna.gatekeeper.provider.GitProviderImpl;
+import in.sskrishna.gatekeeper.repository.CommitRepository;
+import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
+import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
+import io.sskrishna.rest.response.ErrorCodeLookup;
+import io.sskrishna.rest.response.ErrorDetail;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+
+
+@Service
+@Slf4j
+public class GitService {
+    private final ExecutorService globalExecutorService;
+    private final ErrorCodeLookup errorCodeLookup;
+    private final GitRepoRepository gitRepository;
+    private final CommitRepository commitRepository;
+
+    public GitService(@Qualifier("GlobalExecutorService") ExecutorService globalExecutorService,
+                      GitRepoRepository gitRepository,
+                      ErrorCodeLookup errorCodeLookup,
+                      CommitRepository commitRepository) {
+        this.globalExecutorService = globalExecutorService;
+        this.gitRepository = gitRepository;
+        this.errorCodeLookup = errorCodeLookup;
+        this.commitRepository = commitRepository;
+    }
+
+    public void refresh(GitRepo repo) {
+        if (!this.lockResource(GlobalKeys.REPO_INDEX, repo.getId())) {
+            log.info("Repository is already being indexed. skiping reaquest to refresh: ", repo.getId());
+            return;
+        }
+
+        repo.getStatus().setProgress(GitRepo.Status.Progress.QUEUED);
+        this.gitRepository.save(repo);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    refreshSync(repo);
+                } finally {
+                    unlockResource(GlobalKeys.REPO_INDEX, repo.getId());
+                    ThreadPoolExecutor tpe = (ThreadPoolExecutor) globalExecutorService;
+                    log.info("repository refresh queue size: {}", tpe.getQueue().size());
+                }
+            }
+        };
+        this.globalExecutorService.submit(runnable);
+    }
+
+    public void refreshSync(GitRepo repo) {
+        ZonedDateTime now = ZonedDateTime.now();
+        GitProvider gitProvider = new GitProviderImpl(repo);
+        repo.getStatus().setProgress(GitRepo.Status.Progress.IN_PROGRESS);
+        try {
+            if (!gitProvider.exists()) {
+                log.info("repo does not exists. attempting to clone: {}", repo.getId());
+                gitProvider.cloneGit();
+                log.info("fetching repository: {}", repo.getId());
+                gitProvider.fetch();
+            } else {
+                log.info("repo exists. skipping clone: {}", repo.getId());
+                log.info("fetching repository: {}", repo.getId());
+                gitProvider.fetch();
+            }
+            log.info("updating branch info for: " + repo.getId());
+            Set<GitRepo.Branch> branches = gitProvider.getBranches();
+            repo.setBranches(branches);
+            this.gitRepository.save(repo);
+
+            log.info("updating commit history for: " + repo.getId());
+            Map<String, Commit> commitMap = gitProvider.getCommits();
+            this.commitRepository.save(commitMap.values());
+
+            log.info("updating repo info for: " + repo.getId());
+            repo.setTotalCommits(commitMap.size());
+            repo.getStatus().setProgress(GitRepo.Status.Progress.DONE);
+            repo.setDiskUsage(new GitNativeUtil(repo).getDiskUsage());
+            repo.getStatus().setLastRefreshedAt(System.currentTimeMillis());
+            this.gitRepository.save(repo);
+        } catch (InvalidRemoteException exception) {
+            this.handleException(repo, "repo.invalid.remote", exception);
+        } catch (TransportException exception) {
+            this.handleException(repo, "repo.network.error", exception);
+        } catch (Exception exception) {
+            this.handleException(repo, "repo.initialization.failed", exception);
+        } finally {
+            long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
+            log.info("repo refresh finished for: {} after: {} sec", repo.getId(), seconds);
+        }
+    }
+
+    private void handleException(GitRepo repo, String code, Exception exception) {
+        ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode(code);
+        errorDetail.setCause(exception.getMessage());
+        repo.getStatus().addError(errorDetail);
+        repo.getStatus().setProgress(GitRepo.Status.Progress.ERROR);
+        this.gitRepository.save(repo);
+    }
+
+    private boolean lockResource(String... keys) {
+        boolean isLocked = GlobalLockRepo.lock(keys);
+        return isLocked;
+    }
+
+    private void unlockResource(String... keys) {
+        GlobalLockRepo.unlock(keys);
+    }
+}

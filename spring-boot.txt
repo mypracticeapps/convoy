@@ -1,0 +1,41 @@
+What is a spring boot ?
+    - It is not a new MVC framework
+    - Spring boot vs Spring
+    - Spring boot framework helps us to create production
+        grade applications with minimum effort
+        (there is no spring boot with out spring)
+
+How it helps then?
+
+- Problem with Spring #1
+  Configuration over Convention (Spring)
+  Ex: Spring MVC, Persistance, Security
+
+- How the spring boot solves #1
+  Convention over configuration (Spring boot)
+  Everything is done throw auto configuration
+
+- What is auto configuration or how it works?
+  Based on conditions beans are created.
+  Conditions can range from classpath to propertie existance
+
+- Problem with Spring #2
+  Dependency management
+  Ex: Spring and Hibernate
+
+- How the spring boot solves #2
+  stater poms and bill of material
+
+- Problem with Spring #
+  Industry is moving towards cloud native architecture
+
+- How the spring boot solves #2
+  Makes your spring app cloud native
+  Spring boot fat jars
+
+- Spring boot provides range of non functional features
+  that are comon to large number of projects
+  Ex. Embedded Servers, Actuator, DevTools
+
+- Spring boot promotes Java Configuration
+- Spring Init
