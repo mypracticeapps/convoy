@@ -1,7 +1,6 @@
 package in.sskrishna.gatekeeper.service;
 
 import in.sskrishna.gatekeeper.model.Commit;
-import in.sskrishna.gatekeeper.repository.api.CommitMappingRepo;
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
 import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import in.sskrishna.gatekeeper.validators.CommitValidator;
@@ -16,18 +15,15 @@ public class CommitService {
     private final RestErrorBuilder errorBuilder;
     private final CommitValidator commitValidator;
     private final GitRepoRepository gitRepository;
-    private final CommitMappingRepo commitMappingRepo;
     private final CommitRepo commitRepository;
 
     public CommitService(RestErrorBuilder errorBuilder,
                          CommitValidator commitValidator,
                          GitRepoRepository gitRepository,
-                         CommitRepo commitRepository,
-                         CommitMappingRepo commitMappingRepo) {
+                         CommitRepo commitRepository) {
         this.errorBuilder = errorBuilder;
         this.gitRepository = gitRepository;
         this.commitRepository = commitRepository;
-        this.commitMappingRepo = commitMappingRepo;
         this.commitValidator = commitValidator;
     }
 
