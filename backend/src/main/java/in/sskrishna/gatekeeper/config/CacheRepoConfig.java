@@ -16,7 +16,7 @@ public class CacheRepoConfig {
     }
 
     @Bean
-    public CommitRepo commitRepo(){
+    public CommitRepo commitRepo() {
         return new CommitCacheRepo();
     }
 }

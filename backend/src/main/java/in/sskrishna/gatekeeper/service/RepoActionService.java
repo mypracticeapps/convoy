@@ -41,7 +41,7 @@ public class RepoActionService {
     }
 
     public void refreshAll() {
-        for(GitRepo repo: this.gitRepository.findAll()){
+        for (GitRepo repo : this.gitRepository.findAll()) {
             this.gitService.refresh(repo);
         }
     }

@@ -16,10 +16,10 @@ public class GatekeeperApplication {
         SpringApplication.run(GatekeeperApplication.class, args);
     }
 
-	@Bean
-	public ApplicationRunner applicationRunner(StartupService startupService){
-		return (args)->{
-			startupService.startUp();
-		};
-	}
+    @Bean
+    public ApplicationRunner applicationRunner(StartupService startupService) {
+        return (args) -> {
+            startupService.startUp();
+        };
+    }
 }
