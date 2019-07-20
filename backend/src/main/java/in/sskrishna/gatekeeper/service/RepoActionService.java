@@ -1,7 +1,7 @@
 package in.sskrishna.gatekeeper.service;
 
 import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import in.sskrishna.gatekeeper.service.core.GitService;
 import in.sskrishna.gatekeeper.validators.RepoServiceValidator;
 import io.sskrishna.rest.response.RestErrorBuilder;

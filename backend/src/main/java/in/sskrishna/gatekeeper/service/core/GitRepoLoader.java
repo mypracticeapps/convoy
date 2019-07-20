@@ -7,7 +7,7 @@ import com.linkedin.urls.Url;
 import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
 import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;

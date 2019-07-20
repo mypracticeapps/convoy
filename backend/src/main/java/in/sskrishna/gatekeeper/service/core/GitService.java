@@ -5,8 +5,8 @@ import in.sskrishna.gatekeeper.model.GitRepo;
 import in.sskrishna.gatekeeper.provider.GitNativeUtil;
 import in.sskrishna.gatekeeper.provider.GitProvider;
 import in.sskrishna.gatekeeper.provider.GitProviderImpl;
-import in.sskrishna.gatekeeper.repository.CommitRepository;
-import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.CommitRepo;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.ErrorCodeLookup;
@@ -31,12 +31,12 @@ public class GitService {
     private final ExecutorService globalExecutorService;
     private final ErrorCodeLookup errorCodeLookup;
     private final GitRepoRepository gitRepository;
-    private final CommitRepository commitRepository;
+    private final CommitRepo commitRepository;
 
     public GitService(@Qualifier("GlobalExecutorService") ExecutorService globalExecutorService,
                       GitRepoRepository gitRepository,
                       ErrorCodeLookup errorCodeLookup,
-                      CommitRepository commitRepository) {
+                      CommitRepo commitRepository) {
         this.globalExecutorService = globalExecutorService;
         this.gitRepository = gitRepository;
         this.errorCodeLookup = errorCodeLookup;
@@ -79,7 +79,7 @@ public class GitService {
             } else {
                 log.info("repo exists. skipping clone: {}", repo.getId());
                 log.info("fetching repository: {}", repo.getId());
-                gitProvider.fetch();
+//                gitProvider.fetch();
             }
             log.info("updating branch info for: " + repo.getId());
             Set<GitRepo.Branch> branches = gitProvider.getBranches();

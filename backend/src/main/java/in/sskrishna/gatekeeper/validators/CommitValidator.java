@@ -3,8 +3,8 @@ package in.sskrishna.gatekeeper.validators;
 
 import in.sskrishna.gatekeeper.model.Commit;
 import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.CommitRepository;
-import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.CommitRepo;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.FormError;
@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service;
 public class CommitValidator {
     private final RestErrorBuilder errorBuilder;
     private final GitRepoRepository gitRepository;
-    private final CommitRepository commitRepository;
+    private final CommitRepo commitRepository;
 
     public CommitValidator(RestErrorBuilder errorBuilder,
                            GitRepoRepository gitRepository,
-                           CommitRepository commitRepository) {
+                           CommitRepo commitRepository) {
         this.errorBuilder = errorBuilder;
         this.gitRepository = gitRepository;
         this.commitRepository = commitRepository;

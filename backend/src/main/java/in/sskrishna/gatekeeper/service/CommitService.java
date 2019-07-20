@@ -1,9 +1,9 @@
 package in.sskrishna.gatekeeper.service;
 
 import in.sskrishna.gatekeeper.model.Commit;
-import in.sskrishna.gatekeeper.repository.CommitMappingRepo;
-import in.sskrishna.gatekeeper.repository.CommitRepository;
-import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.CommitMappingRepo;
+import in.sskrishna.gatekeeper.repository.api.CommitRepo;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import in.sskrishna.gatekeeper.validators.CommitValidator;
 import io.sskrishna.rest.response.RestErrorBuilder;
 import org.springframework.stereotype.Service;
@@ -17,12 +17,12 @@ public class CommitService {
     private final CommitValidator commitValidator;
     private final GitRepoRepository gitRepository;
     private final CommitMappingRepo commitMappingRepo;
-    private final CommitRepository commitRepository;
+    private final CommitRepo commitRepository;
 
     public CommitService(RestErrorBuilder errorBuilder,
                          CommitValidator commitValidator,
                          GitRepoRepository gitRepository,
-                         CommitRepository commitRepository,
+                         CommitRepo commitRepository,
                          CommitMappingRepo commitMappingRepo) {
         this.errorBuilder = errorBuilder;
         this.gitRepository = gitRepository;

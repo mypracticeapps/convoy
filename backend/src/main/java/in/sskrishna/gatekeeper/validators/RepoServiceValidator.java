@@ -1,7 +1,7 @@
 package in.sskrishna.gatekeeper.validators;
 
 import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.FormError;
 import io.sskrishna.rest.response.RestErrorBuilder;

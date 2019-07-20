@@ -1,7 +1,7 @@
 package in.sskrishna.gatekeeper.service;
 
 import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import in.sskrishna.gatekeeper.validators.RepoServiceValidator;
