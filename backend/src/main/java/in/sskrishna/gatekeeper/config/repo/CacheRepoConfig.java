@@ -1,4 +1,4 @@
-package in.sskrishna.gatekeeper.config;
+package in.sskrishna.gatekeeper.config.repo;
 
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
 import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
@@ -7,7 +7,7 @@ import in.sskrishna.gatekeeper.repository.cache.GitRepoRepositoryCacheImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class CacheRepoConfig {
 
     @Bean

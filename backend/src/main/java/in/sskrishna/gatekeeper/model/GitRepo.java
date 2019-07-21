@@ -9,8 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 @Data
-public class GitRepo {
-    private String id;
+public class GitRepo extends Entity {
     private String version;
     private String name;
     private String owner;

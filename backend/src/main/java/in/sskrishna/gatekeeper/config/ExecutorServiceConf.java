@@ -18,7 +18,7 @@ public class ExecutorServiceConf {
     @Qualifier("GlobalExecutorService")
     public ExecutorService executorService() {
         int cores = Runtime.getRuntime().availableProcessors();
-        cores = 4;
+        cores = 1;
         log.info("Number of available CPU cores: {}", cores);
         int minThreads = cores;
         int maxThreads = cores * 2;
