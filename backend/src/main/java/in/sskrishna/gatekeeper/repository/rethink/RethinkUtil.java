@@ -5,7 +5,6 @@ import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,6 +29,22 @@ public class RethinkUtil {
 
     public void save(String tableName, Object obj) {
         String st = gson.toJson(obj);
+        r.table(tableName)
+                .insert(r.json(st))
+                .optArg("conflict", "replace")
+                .run(connection);
+    }
+
+    public void saveAll(String tableName, Set objSet) {
+        String st = gson.toJson(objSet);
+        r.table(tableName)
+                .insert(r.json(st))
+                .optArg("conflict", "replace")
+                .run(connection);
+    }
+
+    public void saveAll(String tableName, List objList) {
+        String st = gson.toJson(objList);
         r.table(tableName)
                 .insert(r.json(st))
                 .optArg("conflict", "replace")

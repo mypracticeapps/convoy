@@ -72,18 +72,18 @@ public class GitService {
         repo.getStatus().setProgress(GitRepo.Status.Progress.IN_PROGRESS);
         try {
             // clear data
-            this.commitRepository.removeAllByRepoId(repo.getId());
+//            this.commitRepository.removeAllByRepoId(repo.getId());
 
-            if (!gitProvider.exists()) {
-                log.info("repo does not exists. attempting to clone: {}", repo.getId());
-                gitProvider.cloneGit();
-                log.info("fetching repository: {}", repo.getId());
-                gitProvider.fetch();
-            } else {
-                log.info("repo exists. skipping clone: {}", repo.getId());
-                log.info("fetching repository: {}", repo.getId());
-                gitProvider.fetch();
-            }
+//            if (!gitProvider.exists()) {
+//                log.info("repo does not exists. attempting to clone: {}", repo.getId());
+//                gitProvider.cloneGit();
+//                log.info("fetching repository: {}", repo.getId());
+//                gitProvider.fetch();
+//            } else {
+//                log.info("repo exists. skipping clone: {}", repo.getId());
+//                log.info("fetching repository: {}", repo.getId());
+//                gitProvider.fetch();
+//            }
             log.info("updating branch info for: " + repo.getId());
             Set<GitRepo.Branch> branches = gitProvider.getBranches();
             repo.setBranches(branches);

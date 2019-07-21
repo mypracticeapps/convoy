@@ -52,49 +52,4 @@ public class StartupService {
             GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
         }
     }
-
-//    private void scheduleIndex(GitRepo repo, CountDownLatch latch) {
-//        Runnable runnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                GitProvider gitProvider = new GitProviderImpl(repo);
-//                try {
-//                    if (!gitProvider.exists()) {
-//                        log.info("git repo: {} does not exits. attempting to clone", repo.getId());
-//                        gitProvider.cloneGit();
-//                    }
-//                    gitService.refresh(repo);
-//                    repo.getStatus().removeError("repo.initialization.failed");
-//                    removeError("repo.initialization.failed", repo);
-//                    gitRepository.save(repo);
-//                } catch (InvalidRemoteException exception) {
-//                    ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode("repo.invalid.remote");
-//                    errorDetail.setCause(exception.getMessage());
-//                    repo.getStatus().addError(errorDetail);
-//                    this.gitRepository.save(repo);
-//                } catch (TransportException exception) {
-//                    ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode("repo.network.error");
-//                    errorDetail.setCause(exception.getMessage());
-//                    repo.getStatus().addError(errorDetail);
-//                    this.gitRepository.save(repo);
-//                } catch (Exception exception) {
-//                    ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode("repo.initialization.failed");
-//                    errorDetail.setCause(exception.getMessage());
-//                    repo.getStatus().addError(errorDetail);
-//                    this.gitRepository.save(repo);
-//                }
-//            }
-//        };
-//    }
-
-//
-//    private void removeError(String code, GitRepo repo) {
-//        Iterator<ErrorDetail> iterator = repo.getStatus().getErrors().iterator();
-//        while (iterator.hasNext()) {
-//            ErrorDetail detail = iterator.next();
-//            if (detail.getCode().equals(code)) {
-//                iterator.remove();
-//            }
-//        }
-//    }
 }

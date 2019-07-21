@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.rethinkdb.RethinkDB;
 import in.sskrishna.gatekeeper.model.Entity;
 import in.sskrishna.gatekeeper.repository.api.CrudRepo;
+import in.sskrishna.gatekeeper.util.StreamUtil;
 
 import java.util.Collection;
 import java.util.Set;
@@ -27,6 +28,9 @@ public abstract class CrudRethinkRepo<K extends String, V extends Entity> implem
     }
 
     public void save(Collection<V> iterable) {
+        StreamUtil.chunked(iterable.stream(), 1500).forEach(list -> {
+            this.rUtil.saveAll(TABLE_NAME, list);
+        });
         iterable.forEach(this::save);
     }
 
