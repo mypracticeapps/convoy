@@ -10,7 +10,7 @@ public class GitRepoRepositoryRethinkImpl extends CrudRethinkRepo<String, GitRep
     private static final String TABLE_NAME = "git_repos";
 
     public GitRepoRepositoryRethinkImpl(RethinkUtil rUtil) {
-        super(rUtil, TABLE_NAME, GitRepo.class);
+        super(rUtil, TABLE_NAME, null, GitRepo.class);
         this.rUtil = rUtil;
     }
 }

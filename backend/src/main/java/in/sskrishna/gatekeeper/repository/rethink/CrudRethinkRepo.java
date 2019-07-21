@@ -5,10 +5,14 @@ import com.rethinkdb.RethinkDB;
 import in.sskrishna.gatekeeper.model.Entity;
 import in.sskrishna.gatekeeper.repository.api.CrudRepo;
 import in.sskrishna.gatekeeper.util.StreamUtil;
+import lombok.extern.slf4j.Slf4j;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Set;
 
+@Slf4j
 public abstract class CrudRethinkRepo<K extends String, V extends Entity> implements CrudRepo<K, V> {
     private static final Gson gson = new Gson();
     private static final RethinkDB r = RethinkDB.r;
@@ -16,11 +20,11 @@ public abstract class CrudRethinkRepo<K extends String, V extends Entity> implem
     private final String TABLE_NAME;
     private final Class modelCls;
 
-    public CrudRethinkRepo(RethinkUtil rUtil, String tableName, Class modelCls) {
+    public CrudRethinkRepo(RethinkUtil rUtil, String tableName, String[] indexes, Class modelCls) {
         this.rUtil = rUtil;
         this.TABLE_NAME = tableName;
         this.modelCls = modelCls;
-        this.rUtil.createTableIfNotExists(tableName);
+        this.rUtil.createTableIfNotExists(tableName, indexes);
     }
 
     public void save(V entity) {
@@ -28,10 +32,11 @@ public abstract class CrudRethinkRepo<K extends String, V extends Entity> implem
     }
 
     public void save(Collection<V> iterable) {
-        StreamUtil.chunked(iterable.stream(), 1500).forEach(list -> {
+        ZonedDateTime taskNow = ZonedDateTime.now();
+        StreamUtil.chunked(iterable.stream(), 1000).parallelStream().forEach(list -> {
             this.rUtil.saveAll(TABLE_NAME, list);
         });
-        iterable.forEach(this::save);
+        log.trace("time taken to save bulk entities: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
     }
 
     public void delete(V entity) {

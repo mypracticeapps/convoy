@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class RethinkUtil {
     private static final RethinkDB r = RethinkDB.r;
     private static final Gson gson = new Gson();
@@ -20,10 +22,14 @@ public class RethinkUtil {
         this.connection = connection;
     }
 
-    public void createTableIfNotExists(String tableName) {
+    public void createTableIfNotExists(String tableName, String[] indexes) {
         ArrayList<String> arrayList = RethinkDB.r.tableList().run(connection);
         if (!arrayList.contains(tableName)) {
             RethinkDB.r.tableCreate(tableName).run(connection);
+            if (indexes == null) return;
+            for (String index : indexes) {
+                RethinkDB.r.table(tableName).indexCreate(index).run(connection);
+            }
         }
     }
 

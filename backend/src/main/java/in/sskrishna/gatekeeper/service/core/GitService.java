@@ -71,34 +71,40 @@ public class GitService {
         GitProvider gitProvider = new GitProviderImpl(repo);
         repo.getStatus().setProgress(GitRepo.Status.Progress.IN_PROGRESS);
         try {
-            // clear data
-//            this.commitRepository.removeAllByRepoId(repo.getId());
+//             clear data
+            this.commitRepository.removeAllByRepoId(repo.getId());
 
-//            if (!gitProvider.exists()) {
-//                log.info("repo does not exists. attempting to clone: {}", repo.getId());
-//                gitProvider.cloneGit();
-//                log.info("fetching repository: {}", repo.getId());
-//                gitProvider.fetch();
-//            } else {
-//                log.info("repo exists. skipping clone: {}", repo.getId());
-//                log.info("fetching repository: {}", repo.getId());
-//                gitProvider.fetch();
-//            }
+            if (!gitProvider.exists()) {
+                log.info("repo does not exists. attempting to clone: {}", repo.getId());
+                gitProvider.cloneGit();
+                log.info("fetching repository: {}", repo.getId());
+                gitProvider.fetch();
+            } else {
+                log.info("repo exists. skipping clone: {}", repo.getId());
+                log.info("fetching repository: {}", repo.getId());
+                gitProvider.fetch();
+            }
+            ZonedDateTime taskNow = ZonedDateTime.now();
             log.info("updating branch info for: " + repo.getId());
             Set<GitRepo.Branch> branches = gitProvider.getBranches();
             repo.setBranches(branches);
             this.gitRepository.save(repo);
+            log.info("updated branch info. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
 
+            taskNow = ZonedDateTime.now();
             log.info("updating commit history for: " + repo.getId());
             Map<String, Commit> commitMap = gitProvider.getCommits();
             this.commitRepository.save(commitMap.values());
+            log.info("updated commit history. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
 
+            taskNow = ZonedDateTime.now();
             log.info("updating repo info for: " + repo.getId());
             repo.setTotalCommits(commitMap.size());
             repo.getStatus().setProgress(GitRepo.Status.Progress.DONE);
             repo.setDiskUsage(new GitNativeUtil(repo).getDiskUsage());
             repo.getStatus().setLastRefreshedAt(System.currentTimeMillis());
             this.gitRepository.save(repo);
+            log.info("updated repo info. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
         } catch (InvalidRemoteException exception) {
             this.handleException(repo, "repo.invalid.remote", exception);
         } catch (TransportException exception) {

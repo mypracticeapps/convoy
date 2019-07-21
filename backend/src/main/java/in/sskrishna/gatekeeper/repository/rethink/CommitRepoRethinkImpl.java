@@ -10,12 +10,12 @@ public class CommitRepoRethinkImpl extends CrudRethinkRepo<String, Commit> imple
     private static final String TABLE_NAME = "commits";
 
     public CommitRepoRethinkImpl(RethinkUtil rUtil) {
-        super(rUtil, TABLE_NAME, Commit.class);
+        super(rUtil, TABLE_NAME, new String[]{"repoId"}, Commit.class);
         this.rUtil = rUtil;
     }
 
     @Override
     public void removeAllByRepoId(String id) {
-        rUtil.deleteAll(TABLE_NAME, r.hashMap("id", id));
+        rUtil.deleteAll(TABLE_NAME, r.hashMap("repoId", id));
     }
 }
