@@ -144,10 +144,13 @@
       let repo$ = this.repo$
         .pipe(
           filter(Boolean),
-          distinctUntilChanged((prev, next) => prev.version === next.version),
+          distinctUntilChanged((prev, next) => {
+            return prev.status.lastRefreshedAt === next.status.lastRefreshedAt;
+          }),
         );
       let branchName$ = this.branchName$.asObservable().pipe(startWith('master'), distinctUntilChanged());
       combineLatest(repo$, branchName$).subscribe((val) => {
+        // console.log(val)
         this.repo = val[0];
         this.selectedBranchName = val[1];
         this.fetchFirstSetOfCommits();
