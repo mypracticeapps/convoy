@@ -1,2 +1,4 @@
 gatekeeper:
   workingdir: /tmp/gatekeeper
+  databse:
+    type: rethinkdb

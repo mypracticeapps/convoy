@@ -4,15 +4,16 @@ import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
 import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
-import in.sskrishna.gatekeeper.repository.cache.CommitCacheRepo;
 import in.sskrishna.gatekeeper.repository.rethink.CommitRepoRethinkImpl;
 import in.sskrishna.gatekeeper.repository.rethink.GitRepoRepositoryRethinkImpl;
 import in.sskrishna.gatekeeper.repository.rethink.RethinkUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ConditionalOnProperty(name = "gatekeeper.databse.type", havingValue = "rethinkdb")
 public class RethinkConfig {
 
     @Qualifier("rethink")
@@ -35,5 +36,4 @@ public class RethinkConfig {
     public CommitRepo commitRepo(RethinkUtil rUtil) {
         return new CommitRepoRethinkImpl(rUtil);
     }
-
 }

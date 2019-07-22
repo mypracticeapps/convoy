@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Component
+//@Component
 @Slf4j
 public class RethinkBenchmark implements ApplicationRunner {
 
