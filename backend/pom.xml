@@ -10,7 +10,7 @@
     </parent>
     <groupId>in.sskrishna</groupId>
     <artifactId>gatekeeper</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>gatekeeper</name>
     <description>Demo project for Spring Boot</description>
 
