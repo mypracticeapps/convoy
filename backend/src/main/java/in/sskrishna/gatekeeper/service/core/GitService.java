@@ -70,6 +70,7 @@ public class GitService {
         ZonedDateTime now = ZonedDateTime.now();
         GitProvider gitProvider = new GitProviderImpl(repo);
         repo.getStatus().setProgress(GitRepo.Status.Progress.IN_PROGRESS);
+        this.gitRepository.save(repo);
         try {
 //             clear data
             this.commitRepository.removeAllByRepoId(repo.getId());
