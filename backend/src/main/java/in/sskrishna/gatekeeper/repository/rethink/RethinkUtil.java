@@ -4,13 +4,13 @@ import com.google.gson.Gson;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
+import in.sskrishna.gatekeeper.util.StreamUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Slf4j
 public class RethinkUtil {
@@ -41,20 +41,12 @@ public class RethinkUtil {
                 .run(connection);
     }
 
-    public void saveAll(String tableName, Set objSet) {
-        String st = gson.toJson(objSet);
-        r.table(tableName)
-                .insert(r.json(st))
-                .optArg("conflict", "replace")
-                .run(connection);
-    }
-
-    public void saveAll(String tableName, List objList) {
-        String st = gson.toJson(objList);
-        r.table(tableName)
-                .insert(r.json(st))
-                .optArg("conflict", "replace")
-                .run(connection);
+    public void saveAll(String tableName, Collection objSet) {
+        ZonedDateTime taskNow = ZonedDateTime.now();
+        StreamUtil.chunked(objSet.stream(), 1000).parallelStream().forEach(list -> {
+            this.save(tableName, list);
+        });
+        log.trace("time taken to save bulk entities: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
     }
 
     public boolean contains(String tableName, String id) {

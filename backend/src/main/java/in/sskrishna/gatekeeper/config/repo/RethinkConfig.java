@@ -18,7 +18,7 @@ public class RethinkConfig {
     @Qualifier("rethink")
     @Bean
     public Connection rethinkConnection() {
-        return RethinkDB.r.connection().hostname("localhost").port(32769).connect();
+        return RethinkDB.r.connection().hostname("localhost").port(28015).connect();
     }
 
     @Bean

@@ -1,0 +1,23 @@
+docker rm -f $(docker ps -a -q)
+
+docker run --net bridge --rm -d -p 7070:8080 --name rethinkdb rethinkdb
+RETHINKDB_CLUSTER=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" rethinkdb)
+docker run --rm -d --net bridge rethinkdb rethinkdb --join ${RETHINKDB_CLUSTER}:29015 --bind all
+docker run --rm -d --net bridge rethinkdb rethinkdb --join ${RETHINKDB_CLUSTER}:29015 --bind all
+docker run --rm -d --net bridge rethinkdb rethinkdb --join ${RETHINKDB_CLUSTER}:29015 --bind all
+docker run --rm -d --net bridge --name rethinkdb-proxy -p 28015:28015 rethinkdb rethinkdb proxy --join ${RETHINKDB_CLUSTER}:29015 --bind all
+
+
+
+
+BENCHMARKS (250k Records)
+
+Shards      ACK_BEFORE_Write    WRITE_TIME  READ_TIME   WRITE_AVG   WRITE_MIN   READ_AVG    READ_MIN
+1           NO                  89                      2k          1K          300K        200K
+1           NO                  91                      2K          1K          400K        300K
+1           YES                 59                      2K          4k          400K        300k
+1           YES                 59                      2K          4k          400K        300k
+3           NO                  114                     2k          1k          400k        300k
+3           NO                  107                     2k          1k          400k        300k
+3           YES                 64                      2k          1k          400k        300k
+3           YES                 65                      2k          1k          400k        300k

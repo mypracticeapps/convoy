@@ -32,11 +32,9 @@ public abstract class CrudRethinkRepo<K extends String, V extends Entity> implem
     }
 
     public void save(Collection<V> iterable) {
-        ZonedDateTime taskNow = ZonedDateTime.now();
         StreamUtil.chunked(iterable.stream(), 1000).parallelStream().forEach(list -> {
             this.rUtil.saveAll(TABLE_NAME, list);
         });
-        log.trace("time taken to save bulk entities: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
     }
 
     public void delete(V entity) {
