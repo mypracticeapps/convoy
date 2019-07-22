@@ -81,6 +81,7 @@ public class GitService {
                 log.info("fetching repository: {}", repo.getId());
                 gitProvider.fetch();
             } else {
+                gitProvider.assertBareRepo();
                 log.info("repo exists. skipping clone: {}", repo.getId());
                 log.info("fetching repository: {}", repo.getId());
                 gitProvider.fetch();

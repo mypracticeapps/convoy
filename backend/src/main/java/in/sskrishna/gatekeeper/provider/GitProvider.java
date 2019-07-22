@@ -11,6 +11,8 @@ import java.util.Set;
 public interface GitProvider {
     public boolean exists();
 
+    public void assertBareRepo() throws GitAPIException, IOException, InterruptedException;
+
     public void cloneGit() throws GitAPIException, IOException;
 
     public void fetch() throws GitAPIException, IOException, InterruptedException;

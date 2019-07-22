@@ -22,6 +22,13 @@ public class GitNativeUtil {
     private static final String BRANCH_COMMIT_COUNT_CMD = "git rev-list --count {branch}\n";
     private static final String TOTAL_COMMITS_COUNTS_CMD = "git rev-list --all --count\n";
     private static final String DISK_SIZE = "du -shm {dir}";
+    private static final String BARE_REPO = "git rev-parse --is-bare-repository \n";
+
+
+    public boolean isBareRepo() throws IOException, InterruptedException {
+        String result = this.execute(this.BARE_REPO);
+        return result.equals("true");
+    }
 
     public List<String> getAllCommitIds(String branchName) throws IOException, InterruptedException {
         String cmd = this.ALL_COMMIT_CMD.replace("{branch}", branchName);
@@ -70,6 +77,4 @@ public class GitNativeUtil {
         process.waitFor();
         return lines;
     }
-
-
 }

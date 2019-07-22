@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -38,6 +39,7 @@ public class GitRepoLoader implements ApplicationRunner {
         };
 
         List<GitRepo> repoSet = mapper.readValue(resource.getInputStream(), tRef);
+        repoSet = repoSet.stream().filter(value -> value != null).collect(Collectors.toList()); // null values may load if yaml contains black line
         repoSet.forEach((conf -> {
             conf.setName(getRepoName(conf.getUrl()));
             conf.setOwner(getOwner(conf.getUrl()));

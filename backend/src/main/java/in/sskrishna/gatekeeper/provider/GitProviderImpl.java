@@ -124,6 +124,13 @@ public class GitProviderImpl implements GitProvider {
         }
     }
 
+    @Override
+    public void assertBareRepo() throws IOException, InterruptedException {
+        if (!this.gitNative.isBareRepo()) {
+            throw new RuntimeException("This git repo is not a bare repo. pleas make sure it is base repo if you are manually cloning it");
+        }
+    }
+
     public void cloneGit() throws GitAPIException, IOException {
         Git git = Git.cloneRepository()
                 .setBare(true)
