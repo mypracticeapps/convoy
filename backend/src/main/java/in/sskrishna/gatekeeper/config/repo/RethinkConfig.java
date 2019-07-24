@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(name = "gatekeeper.databse.type", havingValue = "rethinkdb")
+@ConditionalOnProperty(name = "gatekeeper.database.type", havingValue = "rethinkdb")
 public class RethinkConfig {
 
     @Qualifier("rethink")

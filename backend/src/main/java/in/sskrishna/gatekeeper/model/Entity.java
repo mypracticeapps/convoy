@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Entity {
-    private String id;
+    protected String id;
 
     public static String idFrom(Object... str) {
         String tmp = "";

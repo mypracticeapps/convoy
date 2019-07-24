@@ -21,10 +21,11 @@ public class GatekeeperApplication {
         SpringApplication.run(GatekeeperApplication.class, args);
     }
 
-    @Bean
-    public ApplicationRunner applicationRunner(StartupService startupService) {
-        return (args) -> {
-            startupService.startUp();
-        };
-    }
+    // TODO PROD ENABLE
+//    @Bean
+//    public ApplicationRunner applicationRunner(StartupService startupService) {
+//        return (args) -> {
+//            startupService.startUp();
+//        };
+//    }
 }

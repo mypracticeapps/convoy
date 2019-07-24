@@ -29,7 +29,7 @@ public class RethinkBenchmark implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         String TABLE_NAME = "persons";
         rUtil.createTableIfNotExists(TABLE_NAME, null);
-        Set<MyPerson> persons = createPersons();
+        Set<MyPerson> persons = DataGenerator.createPersons();
         rUtil.saveAll(TABLE_NAME, persons);
 
         ZonedDateTime taskNow = ZonedDateTime.now();
@@ -41,25 +41,5 @@ public class RethinkBenchmark implements ApplicationRunner {
             }
         });
         log.info("time taken for read bulk entities: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
-    }
-
-    private Set<MyPerson> createPersons() {
-        Set<MyPerson> personSet = new HashSet<>();
-        Fairy fairy = Fairy.create();
-        for (int ii = 0; ii < 25_00_00; ii++) {
-            personSet.add(new MyPerson(fairy.person()));
-        }
-        return personSet;
-    }
-
-    @Data
-    public static class MyPerson {
-        private String id;
-        private Person person;
-
-        public MyPerson(Person person) {
-            this.id = UUID.randomUUID().toString();
-            this.person = person;
-        }
     }
 }

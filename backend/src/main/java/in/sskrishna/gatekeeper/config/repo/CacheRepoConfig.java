@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(name = "gatekeeper.databse.type", havingValue = "cache")
+@ConditionalOnProperty(name = "gatekeeper.database.type", havingValue = "cache")
 public class CacheRepoConfig {
 
     @Bean

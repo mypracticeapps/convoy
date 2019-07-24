@@ -1,5 +1,7 @@
 package in.sskrishna.gatekeeper.repository.mongo;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import in.sskrishna.gatekeeper.model.Entity;
 import in.sskrishna.gatekeeper.repository.api.CrudRepo;
 import in.sskrishna.gatekeeper.util.StreamUtil;
@@ -12,26 +14,26 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MongoCrudRepo<K extends String, V extends Entity> implements CrudRepo<K, V> {
-
-    private MongoTemplate template;
-    private final String COLLECTION_NAME;
+    protected MongoTemplate template;
     private final Class modelCls;
 
-    public MongoCrudRepo(MongoTemplate template, String collectionName, String[] indexes, Class modelCls) {
+    public MongoCrudRepo(MongoTemplate template, String[] indexes, Class modelCls) {
         this.template = template;
-        this.COLLECTION_NAME = collectionName;
         this.modelCls = modelCls;
+        MongoDatabase database = this.template.getDb();
+        MongoCollection collection = database.getCollection("gitrepos");
     }
 
     @Override
     public void save(V entity) {
-        this.template.insert(entity);
+//        this.template.update(entity);
     }
 
     @Override
     public void save(Collection<V> iterable) {
         StreamUtil.chunked(iterable.stream(), 1000).parallelStream().forEach(list -> {
             this.template.insertAll(list);
+
         });
     }
 
