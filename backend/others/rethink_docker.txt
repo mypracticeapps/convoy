@@ -1,5 +1,13 @@
+*************************************************************************
+SINGLE NODE CLUSTER
+*************************************************************************
 docker rm -f $(docker ps -a -q)
+docker run --net bridge --rm -d -p 7070:8080 -p 28015:28015 --name rethinkdb rethinkdb
 
+*************************************************************************
+3 NODE CLUSTER
+*************************************************************************
+docker rm -f $(docker ps -a -q)
 docker run --net bridge --rm -d -p 7070:8080 --name rethinkdb rethinkdb
 RETHINKDB_CLUSTER=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" rethinkdb)
 docker run --rm -d --net bridge rethinkdb rethinkdb --join ${RETHINKDB_CLUSTER}:29015 --bind all

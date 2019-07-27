@@ -1,6 +1,10 @@
 package in.sskrishna.gatekeeper.config.repo;
 
 import com.mongodb.MongoClient;
+import in.sskrishna.gatekeeper.repository.api.CommitRepo;
+import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.mongo.CommitRepoMongoImpl;
+import in.sskrishna.gatekeeper.repository.mongo.GitRepoRepositoryMongoImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +21,18 @@ public class MongoConfig {
 
     @Bean
     public MongoTemplate mongoTemplate() throws Exception {
-        return new MongoTemplate(mongoClient(), "test");
+        MongoTemplate mongoTemplate = new MongoTemplate(mongoClient(), "test");
+        mongoTemplate.executeCommand("{ buildInfo: 1 }");
+        return mongoTemplate;
+    }
+
+    @Bean
+    public GitRepoRepository gitRepoRepository(MongoTemplate mongoTemplate) {
+        return new GitRepoRepositoryMongoImpl(mongoTemplate);
+    }
+
+    @Bean
+    public CommitRepo commitRepo(MongoTemplate mongoTemplate) {
+        return new CommitRepoMongoImpl(mongoTemplate);
     }
 }

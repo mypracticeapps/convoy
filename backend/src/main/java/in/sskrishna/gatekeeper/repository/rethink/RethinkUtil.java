@@ -68,6 +68,12 @@ public class RethinkUtil {
                 .run(connection);
     }
 
+    public void deleteAll(String tableName) {
+        r.table(tableName)
+                .delete()
+                .run(connection);
+    }
+
     public <T> T findOne(String tableName, String id, Class<T> cls) {
         Object obj = getOne(tableName, id);
         T t = this.cast(obj, cls);

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -66,7 +67,8 @@ public class GitRepoLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        this.load().forEach(gitRepo -> repository.save(gitRepo));
+        List<GitRepo> repoSet = this.load();
+        this.repository.save(repoSet);
         log.info("loaded {} git repo configs", this.repository.size());
     }
 }

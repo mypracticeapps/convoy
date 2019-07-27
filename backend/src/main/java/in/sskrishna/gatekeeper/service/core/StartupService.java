@@ -43,7 +43,7 @@ public class StartupService {
 
             Set<GitRepo> repoSet = this.gitRepository.findAll();
             for (GitRepo repo : repoSet) {
-                this.gitService.refreshSync(repo);
+                this.gitService.refresh(repo);
             }
 
             long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
