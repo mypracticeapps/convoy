@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -65,25 +63,34 @@ public class MongoUtil {
     }
 
     public <T> T findOne(String id, Class<T> modelCls) {
-        Query query = Query.query(Criteria.where("_id").is(id));
-        T t = (T) this.template.findOne(query, this.modelCls);
-        return t;
+        Bson filter = Filters.eq("_id", id);
+        Iterator<Document> iterator = this.collection.find(filter).iterator();
+        Set<T> set = map(iterator);
+        if (set.isEmpty()) {
+            return null;
+        } else {
+            return set.iterator().next();
+        }
     }
 
     public <T> Set<T> findAll() {
         Iterator<Document> iterator = this.collection.find().iterator();
+        return this.map(iterator);
+    }
+
+    private <T> Set<T> map(Iterator<Document> iterator) {
         Set<T> set = new HashSet<>();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             Document document = iterator.next();
-            T entity = (T) gson.fromJson(document.toJson(), this.modelCls);
+            String json = gson.toJson(document);
+            T entity = (T) gson.fromJson(json, this.modelCls);
             set.add(entity);
         }
         return set;
     }
 
-    public long size(){
-        Query query = Query.query(Criteria.where("").is(""));
-        return this.template.count(query, this.modelCls);
+    public long size() {
+        return this.collection.countDocuments();
     }
 
     private List<ReplaceOneModel<Document>> asBulkWrite(Collection collection) {

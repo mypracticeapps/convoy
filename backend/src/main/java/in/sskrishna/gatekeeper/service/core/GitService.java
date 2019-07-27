@@ -67,38 +67,42 @@ public class GitService {
     }
 
     public void refreshSync(GitRepo repo) {
+        String repoId = repo.getId();
         ZonedDateTime now = ZonedDateTime.now();
         GitProvider gitProvider = new GitProviderImpl(repo);
         repo.getStatus().setProgress(GitRepo.Status.Progress.IN_PROGRESS);
+        this.gitRepository.save(repo);
         try {
-//             clear data
+            log.info("removing all info from db that belongs to: {}", repoId);
             this.commitRepository.removeAllByRepoId(repo.getId());
 
             if (!gitProvider.exists()) {
-                log.info("repo does not exists. attempting to clone: {}", repo.getId());
+                log.info("repo does not exists. attempting to clone: {}", repoId);
                 gitProvider.cloneGit();
-                log.info("fetching repository: {}", repo.getId());
+                log.info("fetching repository: {}", repoId);
                 gitProvider.fetch();
             } else {
-                log.info("repo exists. skipping clone: {}", repo.getId());
-                log.info("fetching repository: {}", repo.getId());
+                log.info("repo exists. skipping clone: {}", repoId);
+                log.info("fetching repository: {}", repoId);
                 gitProvider.fetch();
             }
             ZonedDateTime taskNow = ZonedDateTime.now();
-            log.info("updating branch info for: " + repo.getId());
+            log.info("retrieving branches info from git for: {}",   repoId);
             Set<GitRepo.Branch> branches = gitProvider.getBranches();
             repo.setBranches(branches);
+            log.info("saving branches info for: {}", repoId);
             this.gitRepository.save(repo);
-            log.info("updated branch info. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
+            log.info("updated branches info. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
 
             taskNow = ZonedDateTime.now();
-            log.info("updating commit history for: " + repo.getId());
+            log.info("retrieving commits info from git for: {}",   repoId);
             Map<String, Commit> commitMap = gitProvider.getCommits();
             this.commitRepository.save(commitMap.values());
+            log.info("saving commits info for: {}", repoId);
             log.info("updated commit history. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
 
             taskNow = ZonedDateTime.now();
-            log.info("updating repo info for: " + repo.getId());
+            log.info("updating repo info for: " + repoId);
             repo.setTotalCommits(commitMap.size());
             repo.getStatus().setProgress(GitRepo.Status.Progress.DONE);
             repo.setDiskUsage(new GitNativeUtil(repo).getDiskUsage());
@@ -113,7 +117,7 @@ public class GitService {
             this.handleException(repo, "repo.initialization.failed", exception);
         } finally {
             long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
-            log.info("repo refresh finished for: {} after: {} sec", repo.getId(), seconds);
+            log.info("repo refresh finished for: {} after: {} sec", repoId, seconds);
         }
     }
 
