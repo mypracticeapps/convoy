@@ -1,4 +1,4 @@
 gatekeeper:
   workingdir: /tmp/gatekeeper
   database:
-    type: mongodb
+    type: cache
