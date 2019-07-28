@@ -1,17 +1,19 @@
 import {Subject, interval, of, combineLatest} from 'rxjs';
-import {ajax} from 'rxjs/ajax';
-import {switchMap, pluck, catchError, startWith, map, share, tap, withLatestFrom} from 'rxjs/operators';
-import axios from "axios";
+import {switchMap, catchError, startWith, map, share, tap} from 'rxjs/operators';
+import axios from 'axios';
+import {http} from "./api.client"
 import _ from 'lodash';
+
+const REFRESH_INTERVAL = 2000;
 
 const store = {
   REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
   repos: [],
-  response: {}
-};
+  response: {},
+}
 
 const filter = {
-  sortBy: 'COMMITS',
+  sortBy: 'PROGRESS',
   sortOrder: 'ASCENDING', // ASCENDING
   searchTerm: ''
 };
@@ -21,9 +23,10 @@ const filter$ = filterSubject$.asObservable().pipe(startWith(filter), share());
 const getAllReposUrl = process.env.VUE_APP_ROOT_API + `/repos`;
 
 const mapAjaxSuccessResponse = (response) => {
-  store.repos = response.response.data;
+  store.repos = response.data.data;
   store.response = response;
   store.REPO_LOAD_STATE = "LOADED";
+  store.filter = filter;
   return Object.assign({}, store);
 };
 
@@ -85,8 +88,8 @@ const sortReposFromStream = (val) => {
   let repos = genericSort(repoStore.repos, callback, terms.sortOrder);
 
   if (terms.sortBy === 'PROGRESS') {
-    let inProgress = _.remove(repos, repo=> repo.status.progress === "IN_PROGRESS");
-    let queued = _.remove(repos, repo=> repo.status.progress === "QUEUED");
+    let inProgress = _.remove(repos, repo => repo.status.progress === "IN_PROGRESS");
+    let queued = _.remove(repos, repo => repo.status.progress === "QUEUED");
     let others = repos;
     repos = [];
     repos.push(...inProgress);
@@ -102,13 +105,13 @@ const plunkRepos = (val) => {
   return val[1];
 };
 
-const reposAjax$ = ajax(getAllReposUrl)
+const reposAjax$ = http.get(getAllReposUrl)
   .pipe(
     map(mapAjaxSuccessResponse),
     catchError(mapAjaxFailureResponse),
   );
 
-const interval$ = interval(2000).pipe(startWith(0));
+const interval$ = interval(REFRESH_INTERVAL).pipe(startWith(0));
 
 const repos$ = interval$.pipe(
   switchMap(() => reposAjax$),

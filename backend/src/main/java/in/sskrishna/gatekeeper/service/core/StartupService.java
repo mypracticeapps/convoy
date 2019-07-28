@@ -15,6 +15,9 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -49,7 +52,17 @@ public class StartupService {
             long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
             log.info("Startup process finished. time taken: {} sec", seconds);
         } finally {
-            GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
+//            GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
+
+            Runnable task = new Runnable() {
+                public void run() {
+                    GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
+                }
+            };
+
+            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+            int delay = 30;
+            scheduler.schedule(task, delay, TimeUnit.SECONDS);
         }
     }
 }

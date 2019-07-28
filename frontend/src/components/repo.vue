@@ -35,7 +35,7 @@
         </div>
       </form>
       <div class="wrapper">
-        <Commit v-for="commit in commits" :commit="commit"></Commit>
+        <Commit v-for="commit in commits" :key="commit.id" :commit="commit"></Commit>
         <button class="btn btn-block btn-secondary btn-lg mb-5 mt-5"
                 :disabled="!uiHasMoreCommits()"
                 @click="fetchNextSetOfCommits()"
@@ -144,12 +144,15 @@
       let repo$ = this.repo$
         .pipe(
           filter(Boolean),
-          distinctUntilChanged((prev, next) => prev.version === next.version),
+          // distinctUntilChanged((prev, next) => {
+          //   if(prev.id !== next.id) return false;
+          //   return prev.status.progress !== next.status.progress;
+          // }),
         );
       let branchName$ = this.branchName$.asObservable().pipe(startWith('master'), distinctUntilChanged());
       combineLatest(repo$, branchName$).subscribe((val) => {
         this.repo = val[0];
-        // setInterval(()=>{console.log(this.repo.status.progress)}, 1000);
+        console.log(this.repo.status.progress)
         this.selectedBranchName = val[1];
         this.fetchFirstSetOfCommits();
       });

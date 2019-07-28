@@ -9,7 +9,7 @@
         <div class="input-field sort-field-wrap">
           <div class="dropdown">
             <button class="btn btn-light dropdown-toggle" type="button" data-toggle="dropdown">
-              {{filterState.sortBy}}
+              {{sortBy}}
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <a class="dropdown-item" href="#" @click="uiSetSortBy('NAME')">name</a>
@@ -41,16 +41,16 @@
       <div class="repos-new-content center" v-if="uiIsVisible('LOADING_REPO')">
         <h2>loading repos</h2>
       </div>
-      <div class="repos-new-content center" v-if="uiIsVisible('LOADING_REPO_FAILED')">
+      <div class="repos-new-content center repo-load-failed" v-if="uiIsVisible('LOADING_REPO_FAILED')">
         <h2>repos load failed</h2>
       </div>
-      <div class="repos-new-content center" v-if="uiIsVisible('UPDATE_REPO_FAILED')">
+      <div class="repos-new-content center repo-update-failed" v-if="uiIsVisible('UPDATE_REPO_FAILED')">
         <h2>repos update failed</h2>
       </div>
-      <div class="repos-new-content center" v-if="uiIsVisible('REPO_NOT_SELECTED')">
+      <div class="repos-new-content center repo-select" v-if="uiIsVisible('REPO_NOT_SELECTED')">
         <h2>please select a repository</h2>
       </div>
-      <repo v-show="uiIsVisible('SHOW_REPO')" :repo$="repoObservable$"></repo>
+      <repo v-show="uiIsVisible('SHOW_REPO')" :repo$="repoObservable$" class="test"></repo>
     </div>
   </div>
 </template>
@@ -76,13 +76,22 @@
     components: {
       repo, Repotitle
     },
-    computed: {},
+    computed: {
+      sortBy() {
+        if (!this.repoStore.filter) return '';
+        if (!this.repoStore.filter.sortBy) return '';
+        return this.repoStore.filter.sortBy;
+      }
+    },
     data() {
       return {
         repoStore: {
           REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
           repos: [],
-          response: {}
+          response: {},
+          filter: {
+            sortBy: ''
+          }
         },
         filterState: {
           sortBy: 'NAME',
@@ -104,12 +113,14 @@
           return this.repoStore.REPO_LOAD_STATE === 'UPDATE_FAILED';
         }
         if (key === 'REPO_NOT_SELECTED') {
-          let preRequests = this.repoStore.REPO_LOAD_STATE === 'LOADED';
-          return preRequests && !Boolean(this.selectedRepo);
+          if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
+          if (!this.selectedRepo) return true;
+          if (this.selectedRepo.uiHide) return true;
         }
         if (key === 'SHOW_REPO') {
-          let preRequests = this.repoStore.REPO_LOAD_STATE === 'LOADED' && Boolean(this.selectedRepo);
-          return preRequests;
+          if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
+          if (!this.selectedRepo) return false;
+          if (!this.selectedRepo.uiHide) return true;
         }
       },
       uiSetSelectedRepoIndex(repo) {
@@ -130,18 +141,22 @@
       }
     },
     mounted() {
-      this.$subscribeTo(RepoAPI.repos$, (val) => {
+      this.repoStoreSubscrition$ = this.$subscribeTo(RepoAPI.repos$, (val) => {
         this.repoStore = val;
         if (!this.selectedRepo) return;
         let newRepo = this.repoStore.repos.find(r => r.id === this.selectedRepo.id);
         if (!newRepo) return;
 
-        let isLastRefreshSame = this.selectedRepo.status.lastRefreshedAt == newRepo.status.lastRefreshedAt;
-        let isProgressSame = this.selectedRepo.status.progress === newRepo.status.progress;
-        if (!isLastRefreshSame || !isProgressSame) {
-          console.log("changed repo")
+        // this.selectedRepo = newRepo;
+        // this.repoSubject$.next(this.selectedRepo);
+
+        let lastRefreshChanged = this.selectedRepo.status.lastRefreshedAt !== newRepo.status.lastRefreshedAt;
+        let progressChanged = this.selectedRepo.status.progress !== newRepo.status.progress;
+        if (lastRefreshChanged || progressChanged) {
           this.selectedRepo = newRepo;
           this.repoSubject$.next(this.selectedRepo);
+        } else {
+          this.selectedRepo = newRepo;
         }
       });
       this.autocomplete$.pipe(
@@ -152,6 +167,10 @@
       ).subscribe(value => {
         RepoAPI.setSearchTerm(value);
       });
+    },
+    beforeDestroy() {
+      this.repoStoreSubscrition$.unsubscribe();
+      console.log("unsubcribe")
     }
   };
 </script>
