@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-console.log(process.env.ROOT_API)
-
 function getCommits(repo, branchName, commitId) {
   let repoId = "repoId=" + repo.id + "&";
   branchName = "branchName=" + branchName + "&";

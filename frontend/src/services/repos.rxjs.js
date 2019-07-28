@@ -107,7 +107,6 @@ const repos$ = interval$.pipe(
 
 let filteredRepos = combineLatest(filter$.pipe(), repos$)
   .pipe(map(filterReposFromStream), map(sortReposFromStream), map(plunkRepos));
-filteredRepos = filteredRepos.pipe(tap(val=>console.log(process.env)));
 
 let RepoAPI = {
   repos$: filteredRepos,

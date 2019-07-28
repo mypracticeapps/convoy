@@ -149,6 +149,7 @@
       let branchName$ = this.branchName$.asObservable().pipe(startWith('master'), distinctUntilChanged());
       combineLatest(repo$, branchName$).subscribe((val) => {
         this.repo = val[0];
+        // setInterval(()=>{console.log(this.repo.status.progress)}, 1000);
         this.selectedBranchName = val[1];
         this.fetchFirstSetOfCommits();
       });

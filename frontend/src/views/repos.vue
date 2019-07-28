@@ -28,13 +28,13 @@
           </button>
         </div>
       </form>
-<!--      TODO some of the properties can be moved to child. found: when moved component update is slow-->
+      <!--      TODO some of the properties can be moved to child. found: when moved component update is slow-->
       <Repotitle
         v-show="!repo.uiHide"
         v-for="repo in repoStore.repos" :key="repo.id"
         :class="{selected: Boolean(selectedRepo) && selectedRepo.id === repo.id}"
         @click.native="uiSetSelectedRepoIndex(repo)"
-      :repo="repo"></Repotitle>
+        :repo="repo"></Repotitle>
     </div>
     <div class="repos-new-content-container">
       <div class="repos-new-content center" v-if="uiIsVisible('LOADING_REPO')">
@@ -131,6 +131,17 @@
     mounted() {
       this.$subscribeTo(RepoAPI.repos$, (val) => {
         this.repoStore = val;
+        if (!this.selectedRepo) return;
+        let newRepo = this.repoStore.repos.find(r => r.id === this.selectedRepo.id);
+        if (!newRepo) return;
+
+        let isLastRefreshSame = this.selectedRepo.status.lastRefreshedAt == newRepo.status.lastRefreshedAt;
+        let isProgressSame = this.selectedRepo.status.progress === newRepo.status.progress;
+        if (!isLastRefreshSame || !isProgressSame) {
+          console.log("changed repo")
+          this.selectedRepo = newRepo;
+          this.repoSubject$.next(this.selectedRepo);
+        }
       });
       this.autocomplete$.pipe(
         debounceTime(200),
