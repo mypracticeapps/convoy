@@ -2,6 +2,7 @@ import {Subject, interval, of, combineLatest} from 'rxjs';
 import {ajax} from 'rxjs/ajax';
 import {switchMap, pluck, catchError, startWith, map, share, tap, withLatestFrom} from 'rxjs/operators';
 import axios from "axios";
+import _ from 'lodash';
 
 const store = {
   REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
@@ -78,10 +79,20 @@ const sortReposFromStream = (val) => {
   if (terms.sortBy === 'DISK_SIZE') {
     callback = (repo) => repo.diskUsage;
   }
-  if (terms.sortBy === 'REFRESH') {
+  if (terms.sortBy === 'REFRESH' || terms.sortBy === 'PROGRESS') {
     callback = (repo) => repo.status.lastRefreshedAt;
   }
   let repos = genericSort(repoStore.repos, callback, terms.sortOrder);
+
+  if (terms.sortBy === 'PROGRESS') {
+    let inProgress = _.remove(repos, repo=> repo.status.progress === "IN_PROGRESS");
+    let queued = _.remove(repos, repo=> repo.status.progress === "QUEUED");
+    let others = repos;
+    repos = [];
+    repos.push(...inProgress);
+    repos.push(...queued);
+    repos.push(...others);
+  }
   repoStore.repos = repos;
   return [terms, repoStore];
 };

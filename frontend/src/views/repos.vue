@@ -17,6 +17,7 @@
               <a class="dropdown-item" href="#" @click="uiSetSortBy('COMMITS')">commits</a>
               <a class="dropdown-item" href="#" @click="uiSetSortBy('DISK_SIZE')">disk size</a>
               <a class="dropdown-item" href="#" @click="uiSetSortBy('REFRESH')">refresh</a>
+              <a class="dropdown-item" href="#" @click="uiSetSortBy('PROGRESS')">progress</a>
             </div>
           </div>
         </div>

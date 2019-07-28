@@ -108,7 +108,7 @@ public class GitService {
             repo.setDiskUsage(new GitNativeUtil(repo).getDiskUsage());
             repo.getStatus().setLastRefreshedAt(System.currentTimeMillis());
             this.gitRepository.save(repo);
-            log.info("updated repo info. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
+            log.info("updated repo info. time taken: {}. lastRefreshedAt: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
         } catch (InvalidRemoteException exception) {
             this.handleException(repo, "repo.invalid.remote", exception);
         } catch (TransportException exception) {

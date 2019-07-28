@@ -20,6 +20,9 @@ import '@/styles/commit.scss'
 
 import '@/services/api.client';
 
+import _ from 'lodash';
+Object.defineProperty(Vue.prototype, '$_', { value: _ });
+
 Vue.config.productionTip = false;
 Vue.use(VueRx);
 
