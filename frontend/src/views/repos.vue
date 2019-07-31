@@ -38,19 +38,19 @@
         :repo="repo"></Repotitle>
     </div>
     <div class="repos-new-content-container">
-      <div class="repos-new-content center" v-if="uiIsVisible('LOADING_REPO')">
+      <div class="repos-new-content center" v-if="sm.visible('CMP_LOADING')">
         <h2>loading repos</h2>
       </div>
-      <div class="repos-new-content center repo-load-failed" v-if="uiIsVisible('LOADING_REPO_FAILED')">
+      <div class="repos-new-content center repo-load-failed" v-if="sm.visible('CMP_LOAD_FAILED')">
         <h2>repos load failed</h2>
       </div>
-      <div class="repos-new-content center repo-update-failed" v-if="uiIsVisible('UPDATE_REPO_FAILED')">
+      <div class="repos-new-content center repo-update-failed" v-if="sm.visible('CMP_UPDATE_FAILED')">
         <h2>repos update failed</h2>
       </div>
-      <div class="repos-new-content center repo-select" v-if="uiIsVisible('REPO_NOT_SELECTED')">
+      <div class="repos-new-content center repo-select" v-if="sm.visible('CMP_REPO_SELECT_NOTIFY')">
         <h2>please select a repository</h2>
       </div>
-      <repo v-show="uiIsVisible('SHOW_REPO')" :repo$="repoObservable$" class="test"></repo>
+      <repo v-show="sm.visible('CMP_SHOW_REPO')" :repo$="repoObservable$" class="test"></repo>
     </div>
   </div>
 </template>
@@ -80,7 +80,7 @@
         },
         data() {
             return {
-                sm: new StateMachine(),
+                sm: new StateMachine(this),
                 repoStore: {
                     REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
                     repos: [],
@@ -121,6 +121,7 @@
             },
             uiSetSelectedRepoIndex(repo) {
                 this.selectedRepo = repo;
+                this.sm.state("REPO_SELECTED");
                 this.repoSubject$.next(this.selectedRepo);
             },
             uiSetSortBy(val) {
@@ -137,23 +138,54 @@
             }
         },
         mounted() {
-            sm.state("STE_LOADING");
+            // this.preDefinedStates = ["REPO_SELECTED", "REPO_NOT_SELECTED", "LOAD_ERROR", "LOADING", "LOAD_COMPLETE"];
+            // REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
+
+            this.sm.state("LOADING");
+            this.sm.state("REPO_NOT_SELECTED");
             this.repoStoreSubscrition$ = this.$subscribeTo(RepoAPI.repos$, (val) => {
                 this.repoStore = val;
-                if (!this.selectedRepo) return;
-                let newRepo = this.repoStore.repos.find(r => r.id === this.selectedRepo.id);
-                if (!newRepo) return;
+                if (this.repoStore.REPO_LOAD_STATE === 'REPO_API_FAILED') {
+                    this.sm.state('LOAD_ERROR');
+                }
+                if (this.repoStore.REPO_LOAD_STATE === 'REPO_API_LOADED') {
+                    this.sm.state('LOAD_COMPLETE');
+                }
 
-                // this.selectedRepo = newRepo;
-                // this.repoSubject$.next(this.selectedRepo);
+                let getUpdatedRepo = (repoStore) => {
+                    if (!this.selectedRepo) return undefined;
+                    let updatedRepo = repoStore.repos.find(r => r.id === this.selectedRepo.id);
+                    return updatedRepo;
+                };
 
-                let lastRefreshChanged = this.selectedRepo.status.lastRefreshedAt !== newRepo.status.lastRefreshedAt;
-                let progressChanged = this.selectedRepo.status.progress !== newRepo.status.progress;
-                if (lastRefreshChanged || progressChanged) {
-                    this.selectedRepo = newRepo;
+                let updatedRepo = getUpdatedRepo(this.repoStore);
+
+                let isUpdatedRepoVisible = (next) => {
+                    if (!next) return false;
+                    return !next.uiHide;
+                };
+                if (isUpdatedRepoVisible(updatedRepo)) {
+                    this.sm.state("REPO_SELECTED")
+                } else {
+                    this.sm.state("REPO_NOT_SELECTED")
+                }
+
+                let isRepoChanged = (oldRepo, newRepo) => {
+                    if(!oldRepo && !newRepo) return false;
+                    if (oldRepo && !newRepo || !oldRepo && newRepo) {
+                        return true;
+                    }
+                    let lastRefreshChanged = oldRepo.status.lastRefreshedAt !== newRepo.status.lastRefreshedAt;
+                    let progressChanged = oldRepo.status.progress !== newRepo.status.progress;
+                    return lastRefreshChanged || progressChanged;
+                };
+
+                if(isRepoChanged(this.selectedRepo, updatedRepo)){
+                    this.selectedRepo = updatedRepo;
                     this.repoSubject$.next(this.selectedRepo);
                 } else {
-                    this.selectedRepo = newRepo;
+                    // TODO check use case
+                    this.selectedRepo = updatedRepo;
                 }
             });
             this.autocomplete$.pipe(
@@ -167,12 +199,12 @@
         },
         beforeDestroy() {
             this.repoStoreSubscrition$.unsubscribe();
-            console.log("unsubcribe")
         }
     };
 
     class StateMachine {
-        constructor() {
+        constructor(self) {
+            this.self = self;
             this.data = {
                 firstLoad: true
             };
@@ -185,16 +217,16 @@
                 CMP_SHOW_REPO: false
             };
 
-            this.currStates = [];
+            this.currStates = new Set();
 
             this.preDefinedStates = ["REPO_SELECTED", "REPO_NOT_SELECTED", "LOAD_ERROR", "LOADING", "LOAD_COMPLETE"];
         }
 
         visible(uiComponent) {
-            if (!this.store.hasOwnProperty(uiComponent)) {
-                throw "UI Component NOT supported";
+            if (!this.compState.hasOwnProperty(uiComponent)) {
+                throw "UI Component NOT supported: " + uiComponent;
             }
-            return this.store[uiComponent];
+            return this.compState[uiComponent];
         }
 
         show(uiComponent) {
@@ -203,27 +235,23 @@
 
         state(uiState) {
             if (!this.preDefinedStates.includes(uiState)) throw "UNKNOWN UI STATE";
-
+            // console.log("NEW STATE: " + uiState);
             if (uiState === 'LOADING') {
-                this.currStates.push(uiState);
+                this.currStates.add(uiState);
                 // if this is not first load, we can safe to leave all the ui components as it is
             } else if (uiState === 'LOAD_ERROR') {
-                this.currStates.push(uiState);
-                var index = this.currStates.indexOf('LOADING');
-                if (index !== -1) this.currStates.splice(index, 1);
+                this.currStates.add(uiState);
+                this.currStates.delete("LOADING");
             } else if (uiState === 'LOAD_COMPLETE') {
-                this.currStates.push(uiState);
-                var index = this.currStates.indexOf('LOADING');
-                if (index !== -1) this.currStates.splice(index, 1);
+                this.currStates.add(uiState);
+                this.currStates.delete("LOADING");
                 this.data.firstLoad = false;
             } else if (uiState === 'REPO_SELECTED') {
-                this.currStates.push(uiState);
-                var index = this.currStates.indexOf('REPO_NOT_SELECTED');
-                if (index !== -1) this.currStates.splice(index, 1);
+                this.currStates.add(uiState);
+                this.currStates.delete('REPO_NOT_SELECTED');
             } else if (uiState === 'REPO_NOT_SELECTED') {
-                this.currStates.push(uiState);
-                var index = this.currStates.indexOf('REPO_SELECTED');
-                if (index !== -1) this.currStates.splice(index, 1);
+                this.currStates.add(uiState);
+                this.currStates.delete('REPO_SELECTED');
             }
             this._calc();
         }
@@ -231,7 +259,8 @@
         _calc() {
             // this.preDefinedStates = ["REPO_SELECTED", "REPO_NOT_SELECTED", "LOAD_ERROR", "LOADING", "LOAD_COMPLETE"]; for easy reference
             // initial loading
-            if (this.currStates.includes("LOADING") && this.data.firstLoad) {
+            // console.log(this.currStates);
+            if (this.currStates.has("LOADING") && this.data.firstLoad) {
                 this._set({
                     CMP_SIDE_NAV: false,
                     CMP_LOADING: true,
@@ -240,10 +269,10 @@
                     CMP_REPO_SELECT_NOTIFY: false,
                     CMP_SHOW_REPO: false
                 });
-            }
+            } else
 
             // initial load failed
-            if (this.currStates.includes("LOAD_ERROR" && this.data.firstLoad)) {
+            if (this.currStates.has("LOAD_ERROR" && this.data.firstLoad)) {
                 this._set({
                     CMP_SIDE_NAV: false,
                     CMP_LOADING: false,
@@ -252,10 +281,10 @@
                     CMP_REPO_SELECT_NOTIFY: false,
                     CMP_SHOW_REPO: false
                 });
-            }
+            } else
 
             // initial load success and subsequent load failed
-            if (this.currStates.includes("LOAD_ERROR" && !this.data.firstLoad)) {
+            if (this.currStates.has("LOAD_ERROR" && !this.data.firstLoad)) {
                 this._set({
                     CMP_SIDE_NAV: true,
                     CMP_LOADING: false,
@@ -264,10 +293,10 @@
                     CMP_REPO_SELECT_NOTIFY: false,
                     CMP_SHOW_REPO: false
                 });
-            }
+            } else
 
             // repos loaded but not selected
-            if (this.currStates.includes("LOAD_COMPLETE") && this.currStates.includes("REPO_NOT_SELECTED")) {
+            if (this.currStates.has("LOAD_COMPLETE") && this.currStates.has("REPO_NOT_SELECTED")) {
                 this._set({
                     CMP_SIDE_NAV: true,
                     CMP_LOADING: false,
@@ -276,10 +305,10 @@
                     CMP_REPO_SELECT_NOTIFY: true,
                     CMP_SHOW_REPO: false
                 });
-            }
+            } else
 
             // repos loaded and selected
-            if (this.currStates.includes("LOAD_COMPLETE") && this.currStates.includes("REPO_SELECTED")) {
+            if (this.currStates.has("LOAD_COMPLETE") && this.currStates.has("REPO_SELECTED")) {
                 this._set({
                     CMP_SIDE_NAV: true,
                     CMP_LOADING: false,
@@ -288,11 +317,15 @@
                     CMP_REPO_SELECT_NOTIFY: false,
                     CMP_SHOW_REPO: true
                 });
+            } else {
+                console.log("CALC NO CONDITION FOUND");
             }
         }
 
         _set(st) {
             this.compState = st;
+            // console.log(JSON.stringify(st));
         }
     }
 </script>
+`
