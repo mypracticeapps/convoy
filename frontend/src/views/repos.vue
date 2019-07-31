@@ -56,121 +56,144 @@
 </template>
 
 <script>
-  import repo from "@/components/repo.vue";
-  import Repotitle from "./repotitle/Repotitle.vue";
-  import RepoAPI from "@/services/repos.rxjs";
-  import {Subject, BehaviorSubject, interval, of, combineLatest} from 'rxjs';
-  import {
-    distinctUntilChanged,
-    debounceTime,
-    map,
-    share
-  } from 'rxjs/operators';
+    import repo from "@/components/repo.vue";
+    import Repotitle from "./repotitle/Repotitle.vue";
+    import RepoAPI from "@/services/repos.rxjs";
+    import {BehaviorSubject, Subject} from 'rxjs';
+    import {debounceTime, distinctUntilChanged, map, share} from 'rxjs/operators';
 
-  export default {
-    subscriptions() {
-      this.autocomplete$ = new Subject(),
-        this.repoSubject$ = new BehaviorSubject(),
-        this.repoObservable$ = this.repoSubject$.asObservable().pipe(share())
-    },
-    components: {
-      repo, Repotitle
-    },
-    computed: {
-      sortBy() {
-        if (!this.repoStore.filter) return '';
-        if (!this.repoStore.filter.sortBy) return '';
-        return this.repoStore.filter.sortBy;
-      }
-    },
-    data() {
-      return {
-        repoStore: {
-          REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
-          repos: [],
-          response: {},
-          filter: {
-            sortBy: ''
-          }
+    export default {
+        subscriptions() {
+            this.autocomplete$ = new Subject(),
+                this.repoSubject$ = new BehaviorSubject(),
+                this.repoObservable$ = this.repoSubject$.asObservable().pipe(share())
         },
-        filterState: {
-          sortBy: 'NAME',
-          sortOrder: 'ASCENDING',
-          searchTerm: ''
+        components: {
+            repo, Repotitle
         },
-        selectedRepo: undefined
-      };
-    },
-    methods: {
-      uiIsVisible(key) {
-        if (key === 'LOADING_REPO') {
-          return this.repoStore.REPO_LOAD_STATE === 'LOADING';
-        }
-        if (key === 'LOADING_REPO_FAILED') {
-          return this.repoStore.REPO_LOAD_STATE === 'FAILED';
-        }
-        if (key === 'UPDATE_REPO_FAILED') {
-          return this.repoStore.REPO_LOAD_STATE === 'UPDATE_FAILED';
-        }
-        if (key === 'REPO_NOT_SELECTED') {
-          if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
-          if (!this.selectedRepo) return true;
-          if (this.selectedRepo.uiHide) return true;
-        }
-        if (key === 'SHOW_REPO') {
-          if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
-          if (!this.selectedRepo) return false;
-          if (!this.selectedRepo.uiHide) return true;
-        }
-      },
-      uiSetSelectedRepoIndex(repo) {
-        this.selectedRepo = repo;
-        this.repoSubject$.next(this.selectedRepo);
-      },
-      uiSetSortBy(val) {
-        this.filterState.sortBy = val;
-        RepoAPI.setSortBy(val);
-      },
-      uiToggleSortOrder() {
-        if (this.filterState.sortOrder === 'ASCENDING') {
-          this.filterState.sortOrder = 'DESCENDING';
-        } else {
-          this.filterState.sortOrder = 'ASCENDING';
-        }
-        RepoAPI.setSortOrder(this.filterState.sortOrder);
-      }
-    },
-    mounted() {
-      this.repoStoreSubscrition$ = this.$subscribeTo(RepoAPI.repos$, (val) => {
-        this.repoStore = val;
-        if (!this.selectedRepo) return;
-        let newRepo = this.repoStore.repos.find(r => r.id === this.selectedRepo.id);
-        if (!newRepo) return;
+        computed: {
+            sortBy() {
+                if (!this.repoStore.filter) return '';
+                if (!this.repoStore.filter.sortBy) return '';
+                return this.repoStore.filter.sortBy;
+            }
+        },
+        data() {
+            return {
+                repoStore: {
+                    REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
+                    repos: [],
+                    response: {},
+                    filter: {
+                        sortBy: ''
+                    }
+                },
+                filterState: {
+                    sortBy: 'NAME',
+                    sortOrder: 'ASCENDING',
+                    searchTerm: ''
+                },
+                selectedRepo: undefined
+            };
+        },
+        methods: {
+            uiIsVisible(key) {
+                if (key === 'LOADING_REPO') {
+                    return this.repoStore.REPO_LOAD_STATE === 'LOADING';
+                }
+                if (key === 'LOADING_REPO_FAILED') {
+                    return this.repoStore.REPO_LOAD_STATE === 'FAILED';
+                }
+                if (key === 'UPDATE_REPO_FAILED') {
+                    return this.repoStore.REPO_LOAD_STATE === 'UPDATE_FAILED';
+                }
+                if (key === 'REPO_NOT_SELECTED') {
+                    if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
+                    if (!this.selectedRepo) return true;
+                    if (this.selectedRepo.uiHide) return true;
+                }
+                if (key === 'SHOW_REPO') {
+                    if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
+                    if (!this.selectedRepo) return false;
+                    if (!this.selectedRepo.uiHide) return true;
+                }
+            },
+            uiSetSelectedRepoIndex(repo) {
+                this.selectedRepo = repo;
+                this.repoSubject$.next(this.selectedRepo);
+            },
+            uiSetSortBy(val) {
+                this.filterState.sortBy = val;
+                RepoAPI.setSortBy(val);
+            },
+            uiToggleSortOrder() {
+                if (this.filterState.sortOrder === 'ASCENDING') {
+                    this.filterState.sortOrder = 'DESCENDING';
+                } else {
+                    this.filterState.sortOrder = 'ASCENDING';
+                }
+                RepoAPI.setSortOrder(this.filterState.sortOrder);
+            }
+        },
+        mounted() {
+            this.repoStoreSubscrition$ = this.$subscribeTo(RepoAPI.repos$, (val) => {
+                this.repoStore = val;
+                if (!this.selectedRepo) return;
+                let newRepo = this.repoStore.repos.find(r => r.id === this.selectedRepo.id);
+                if (!newRepo) return;
 
-        // this.selectedRepo = newRepo;
-        // this.repoSubject$.next(this.selectedRepo);
+                // this.selectedRepo = newRepo;
+                // this.repoSubject$.next(this.selectedRepo);
 
-        let lastRefreshChanged = this.selectedRepo.status.lastRefreshedAt !== newRepo.status.lastRefreshedAt;
-        let progressChanged = this.selectedRepo.status.progress !== newRepo.status.progress;
-        if (lastRefreshChanged || progressChanged) {
-          this.selectedRepo = newRepo;
-          this.repoSubject$.next(this.selectedRepo);
-        } else {
-          this.selectedRepo = newRepo;
+                let lastRefreshChanged = this.selectedRepo.status.lastRefreshedAt !== newRepo.status.lastRefreshedAt;
+                let progressChanged = this.selectedRepo.status.progress !== newRepo.status.progress;
+                if (lastRefreshChanged || progressChanged) {
+                    this.selectedRepo = newRepo;
+                    this.repoSubject$.next(this.selectedRepo);
+                } else {
+                    this.selectedRepo = newRepo;
+                }
+            });
+            this.autocomplete$.pipe(
+                debounceTime(200),
+                map(event => event.event.target.value),
+                map(value => value.trim()),
+                distinctUntilChanged(),
+            ).subscribe(value => {
+                RepoAPI.setSearchTerm(value);
+            });
+        },
+        beforeDestroy() {
+            this.repoStoreSubscrition$.unsubscribe();
+            console.log("unsubcribe")
         }
-      });
-      this.autocomplete$.pipe(
-        debounceTime(200),
-        map(event => event.event.target.value),
-        map(value => value.trim()),
-        distinctUntilChanged(),
-      ).subscribe(value => {
-        RepoAPI.setSearchTerm(value);
-      });
-    },
-    beforeDestroy() {
-      this.repoStoreSubscrition$.unsubscribe();
-      console.log("unsubcribe")
+    };
+
+    class test {
+        constructor() {
+            this.store = {
+                SIDE_NAV: false,
+                LOADING: true,
+                UPDATE_FAILED: false,
+                LOAD_FAILED: false,
+                REPO_SELECT_NOTIFY: false,
+                SHOW_REPO: false
+            }
+        }
+
+        visible(uiComponent) {
+            if (!this.store.hasOwnProperty(uiComponent)) {
+                throw "UI Component NOT supported";
+            }
+            return this.store[uiComponent];
+        }
+
+        show(uiComponent) {
+            this.visible(uiComponent);
+        }
+
+        state(uiState) {
+
+        }
     }
-  };
 </script>
