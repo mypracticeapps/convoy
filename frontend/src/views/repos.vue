@@ -80,6 +80,7 @@
         },
         data() {
             return {
+                sm: new StateMachine(),
                 repoStore: {
                     REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
                     repos: [],
@@ -136,6 +137,7 @@
             }
         },
         mounted() {
+            sm.state("STE_LOADING");
             this.repoStoreSubscrition$ = this.$subscribeTo(RepoAPI.repos$, (val) => {
                 this.repoStore = val;
                 if (!this.selectedRepo) return;
@@ -169,16 +171,23 @@
         }
     };
 
-    class test {
+    class StateMachine {
         constructor() {
-            this.store = {
-                SIDE_NAV: false,
-                LOADING: true,
-                UPDATE_FAILED: false,
-                LOAD_FAILED: false,
-                REPO_SELECT_NOTIFY: false,
-                SHOW_REPO: false
-            }
+            this.data = {
+                firstLoad: true
+            };
+            this.compState = {
+                CMP_SIDE_NAV: false,
+                CMP_LOADING: true,
+                CMP_UPDATE_FAILED: false,
+                CMP_LOAD_FAILED: false,
+                CMP_REPO_SELECT_NOTIFY: false,
+                CMP_SHOW_REPO: false
+            };
+
+            this.currStates = [];
+
+            this.preDefinedStates = ["REPO_SELECTED", "REPO_NOT_SELECTED", "LOAD_ERROR", "LOADING", "LOAD_COMPLETE"];
         }
 
         visible(uiComponent) {
@@ -193,7 +202,97 @@
         }
 
         state(uiState) {
+            if (!this.preDefinedStates.includes(uiState)) throw "UNKNOWN UI STATE";
 
+            if (uiState === 'LOADING') {
+                this.currStates.push(uiState);
+                // if this is not first load, we can safe to leave all the ui components as it is
+            } else if (uiState === 'LOAD_ERROR') {
+                this.currStates.push(uiState);
+                var index = this.currStates.indexOf('LOADING');
+                if (index !== -1) this.currStates.splice(index, 1);
+            } else if (uiState === 'LOAD_COMPLETE') {
+                this.currStates.push(uiState);
+                var index = this.currStates.indexOf('LOADING');
+                if (index !== -1) this.currStates.splice(index, 1);
+                this.data.firstLoad = false;
+            } else if (uiState === 'REPO_SELECTED') {
+                this.currStates.push(uiState);
+                var index = this.currStates.indexOf('REPO_NOT_SELECTED');
+                if (index !== -1) this.currStates.splice(index, 1);
+            } else if (uiState === 'REPO_NOT_SELECTED') {
+                this.currStates.push(uiState);
+                var index = this.currStates.indexOf('REPO_SELECTED');
+                if (index !== -1) this.currStates.splice(index, 1);
+            }
+            this._calc();
+        }
+
+        _calc() {
+            // this.preDefinedStates = ["REPO_SELECTED", "REPO_NOT_SELECTED", "LOAD_ERROR", "LOADING", "LOAD_COMPLETE"]; for easy reference
+            // initial loading
+            if (this.currStates.includes("LOADING") && this.data.firstLoad) {
+                this._set({
+                    CMP_SIDE_NAV: false,
+                    CMP_LOADING: true,
+                    CMP_UPDATE_FAILED: false,
+                    CMP_LOAD_FAILED: false,
+                    CMP_REPO_SELECT_NOTIFY: false,
+                    CMP_SHOW_REPO: false
+                });
+            }
+
+            // initial load failed
+            if (this.currStates.includes("LOAD_ERROR" && this.data.firstLoad)) {
+                this._set({
+                    CMP_SIDE_NAV: false,
+                    CMP_LOADING: false,
+                    CMP_UPDATE_FAILED: false,
+                    CMP_LOAD_FAILED: true,
+                    CMP_REPO_SELECT_NOTIFY: false,
+                    CMP_SHOW_REPO: false
+                });
+            }
+
+            // initial load success and subsequent load failed
+            if (this.currStates.includes("LOAD_ERROR" && !this.data.firstLoad)) {
+                this._set({
+                    CMP_SIDE_NAV: true,
+                    CMP_LOADING: false,
+                    CMP_UPDATE_FAILED: true,
+                    CMP_LOAD_FAILED: false,
+                    CMP_REPO_SELECT_NOTIFY: false,
+                    CMP_SHOW_REPO: false
+                });
+            }
+
+            // repos loaded but not selected
+            if (this.currStates.includes("LOAD_COMPLETE") && this.currStates.includes("REPO_NOT_SELECTED")) {
+                this._set({
+                    CMP_SIDE_NAV: true,
+                    CMP_LOADING: false,
+                    CMP_UPDATE_FAILED: false,
+                    CMP_LOAD_FAILED: false,
+                    CMP_REPO_SELECT_NOTIFY: true,
+                    CMP_SHOW_REPO: false
+                });
+            }
+
+            // repos loaded and selected
+            if (this.currStates.includes("LOAD_COMPLETE") && this.currStates.includes("REPO_SELECTED")) {
+                this._set({
+                    CMP_SIDE_NAV: true,
+                    CMP_LOADING: false,
+                    CMP_UPDATE_FAILED: false,
+                    CMP_LOAD_FAILED: false,
+                    CMP_REPO_SELECT_NOTIFY: false,
+                    CMP_SHOW_REPO: true
+                });
+            }
+        }
+
+        _set(st) {
+            this.compState = st;
         }
     }
 </script>
