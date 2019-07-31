@@ -31,7 +31,7 @@ const mapFailed = (response) => {
     filter: filter,
     REPO_LOAD_STATE: "REPO_API_FAILED"
   };
-  return store;
+  return of(store);
 };
 
 const filterRepos = (repoStore) => {

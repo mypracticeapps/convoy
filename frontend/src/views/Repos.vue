@@ -1,6 +1,6 @@
 <template>
   <div class="repos-new">
-    <div class="repos-new-nav">
+    <div class="repos-new-nav" v-show="sm.visible('CMP_SIDE_NAV')">
       <form>
         <div class="input-field search-wrap">
           <input id="search" type="text" placeholder="search repository" class="form-control"
@@ -272,7 +272,7 @@
             } else
 
             // initial load failed
-            if (this.currStates.has("LOAD_ERROR" && this.data.firstLoad)) {
+            if (this.currStates.has("LOAD_ERROR") && this.data.firstLoad) {
                 this._set({
                     CMP_SIDE_NAV: false,
                     CMP_LOADING: false,
@@ -284,7 +284,7 @@
             } else
 
             // initial load success and subsequent load failed
-            if (this.currStates.has("LOAD_ERROR" && !this.data.firstLoad)) {
+            if (this.currStates.has("LOAD_ERROR") && !this.data.firstLoad) {
                 this._set({
                     CMP_SIDE_NAV: true,
                     CMP_LOADING: false,
@@ -319,12 +319,13 @@
                 });
             } else {
                 console.log("CALC NO CONDITION FOUND");
+                console.log(this.currStates)
             }
         }
 
         _set(st) {
             this.compState = st;
-            // console.log(JSON.stringify(st));
+            console.log(JSON.stringify(st));
         }
     }
 </script>
