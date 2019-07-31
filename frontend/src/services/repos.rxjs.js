@@ -1,6 +1,7 @@
 import {BehaviorSubject, combineLatest, interval, of, Subject, defer} from 'rxjs';
 import {catchError, map, share, startWith, switchMap, tap, delay, pairwise} from 'rxjs/operators';
 import {http} from "./api.client"
+import axios from 'axios';
 import _ from 'lodash';
 
 const REFRESH_INTERVAL = 2000;
@@ -128,11 +129,11 @@ let RepoAPI = {
     filter$.next(filter);
   },
   refreshGit(repo) {
-    // let repoId = "repoId=" + repo.id;
-    // let url = process.env.VUE_APP_ROOT_API + "/repos/actions/refresh/git?" + repoId;
-    // return axios.get(url).then(response => {
-    //   return response.data
-    // });
+    let repoId = "repoId=" + repo.id;
+    let url = process.env.VUE_APP_ROOT_API + "/repos/actions/refresh/git?" + repoId;
+    return axios.get(url).then(response => {
+      return response.data
+    });
   }
 };
 

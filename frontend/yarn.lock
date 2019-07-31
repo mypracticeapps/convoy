@@ -6408,11 +6408,6 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   dependencies:
     aproba "^1.1.1"
 
-rxios@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/rxios/-/rxios-1.1.2.tgz#412bf98a646eb1662fe9e6941d1c93f39e643e61"
-  integrity sha512-nfQH2PdBqqvX41zDCM3KbXm4lJjUEaSoggT4g6tJTpBe2rrwDvKmVZ6Qaq3mKxs0IO33QT2RPEj1wIrwblhtPQ==
-
 rxjs@^6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.2.tgz#2e35ce815cd46d84d02a209fb4e5921e051dbec7"
