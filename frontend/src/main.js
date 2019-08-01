@@ -26,9 +26,8 @@ Object.defineProperty(Vue.prototype, '$_', { value: _ });
 Vue.config.productionTip = false;
 Vue.use(VueRx);
 
-import {http, httpl} from "@/services/api.client"
-http.configure(router)
-httpl.configure(router)
+import {http, httpConfig} from "@/services/api.client"
+httpConfig(router);
 
 let app = new Vue({
   router,

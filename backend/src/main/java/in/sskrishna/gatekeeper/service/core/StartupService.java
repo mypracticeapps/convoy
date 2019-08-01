@@ -52,17 +52,17 @@ public class StartupService {
             long seconds = now.until(ZonedDateTime.now(), ChronoUnit.SECONDS);
             log.info("Startup process finished. time taken: {} sec", seconds);
         } finally {
-//            GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
-
-            Runnable task = new Runnable() {
-                public void run() {
-                    GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
-                }
-            };
-
-            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-            int delay = 30;
-            scheduler.schedule(task, delay, TimeUnit.SECONDS);
+            GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
+//
+//            Runnable task = new Runnable() {
+//                public void run() {
+//                    GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
+//                }
+//            };
+//
+//            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+//            int delay = 30;
+//            scheduler.schedule(task, delay, TimeUnit.SECONDS);
         }
     }
 }

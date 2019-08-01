@@ -1,6 +1,9 @@
 import {BehaviorSubject, combineLatest, interval, of, Subject, defer} from 'rxjs';
 import {catchError, map, share, startWith, switchMap, tap, delay, pairwise} from 'rxjs/operators';
-import {http} from "./api.client"
+import rxios from "./api.client"
+
+let http = new rxios({}, false, true);
+
 import axios from 'axios';
 import _ from 'lodash';
 

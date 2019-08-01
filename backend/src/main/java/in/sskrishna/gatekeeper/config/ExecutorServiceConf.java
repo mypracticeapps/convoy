@@ -19,10 +19,11 @@ public class ExecutorServiceConf {
     public ExecutorService executorService() {
         int cores = Runtime.getRuntime().availableProcessors();
         log.info("Number of available CPU cores: {}", cores);
-        int minThreads = cores;
+//        cores = 1;
+	int minThreads = cores;
         int maxThreads = cores * 2;
         int keepAliveTime = 360;
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(100);
         ExecutorService executorService = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTime, TimeUnit.SECONDS, queue);
         return executorService;
     }

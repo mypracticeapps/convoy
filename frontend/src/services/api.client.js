@@ -14,47 +14,59 @@ axios.interceptors.response.use(response => {
   return error;
 });
 
+
+let progressStartIntr = (config) => {
+  NProgress.start();
+  return config;
+};
+
+let progressEndSuccessIntr = (response) => {
+  NProgress.done();
+  return Promise.resolve(response);
+};
+
+let progressEndFailedIntr = (response) => {
+  NProgress.done();
+  return Promise.reject(response);
+};
+
+let startUpIntr = (response) => {
+  let status = undefined;
+  if(response.response){
+    status = response.response.status;
+  } else {
+    status = response.status;
+  }
+  if (status === 200) {
+    return Promise.resolve(response);
+  } else if (status === 421) {
+    let currentPage = globalRouter.history.current.name;
+    if (currentPage !== 'startup') {
+      globalRouter.push({name: 'startup'});
+    }
+  }
+};
+
+let globalRouter = undefined;
+
 class rxios {
-  constructor(progressBar, options = {}) {
+  constructor(options = {}, progressBar, startUpIntr) {
     this.options = options;
     this.progressBar = progressBar;
+    this.startUpIntr = startUpIntr;
+    this.configure();
   }
 
-  configure(router) {
-    this.router = router;
-
+  configure() {
     this._httpClient = axios.create(this.options);
 
     if (this.progressBar) {
-      this._httpClient.interceptors.request.use(config => {
-        NProgress.start();
-        return config
-      });
-
-      this._httpClient.interceptors.response.use(response => {
-        NProgress.done();
-        return response
-      }, error => {
-        NProgress.done();
-        return error;
-      });
+      this._httpClient.interceptors.request.use(progressStartIntr);
+      this._httpClient.interceptors.response.use(progressEndSuccessIntr, progressEndFailedIntr);
     }
 
-    if (this.router) {
-      this._httpClient.interceptors.response.use(response => {
-        return response
-      }, error => {
-        console.log(error)
-        let status = error.response.status;
-        let currentPage = this.router.history.current.name;
-        console.log(status, currentPage)
-        if (status === 421 && currentPage !== 'startup') {
-          this.router.push({name: 'startup'});
-        } else {
-
-        }
-        return error
-      });
+    if (this.startUpIntr && globalRouter) {
+      this._httpClient.interceptors.response.use(startUpIntr,startUpIntr);
     }
   }
 
@@ -111,6 +123,8 @@ class rxios {
   }
 }
 
-export const http = new rxios(false, {});
-export const httpl = new rxios(true, {});
-export default {http, httpl};
+export const httpConfig = function (router) {
+  globalRouter = router;
+};
+
+export default rxios;

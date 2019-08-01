@@ -36,6 +36,7 @@ public final class GlobalLockRepo {
         for (Object s : keys) {
             key += s + ":";
         }
+        key = key.substring(0, key.length() - 1);
         return key;
     }
 

@@ -242,9 +242,11 @@
             } else if (uiState === 'LOAD_ERROR') {
                 this.currStates.add(uiState);
                 this.currStates.delete("LOADING");
+                this.currStates.delete("LOAD_COMPLETE");
             } else if (uiState === 'LOAD_COMPLETE') {
                 this.currStates.add(uiState);
                 this.currStates.delete("LOADING");
+                this.currStates.delete("LOAD_ERROR");
                 this.data.firstLoad = false;
             } else if (uiState === 'REPO_SELECTED') {
                 this.currStates.add(uiState);
@@ -286,7 +288,7 @@
             // initial load success and subsequent load failed
             if (this.currStates.has("LOAD_ERROR") && !this.data.firstLoad) {
                 this._set({
-                    CMP_SIDE_NAV: true,
+                    CMP_SIDE_NAV: false,
                     CMP_LOADING: false,
                     CMP_UPDATE_FAILED: true,
                     CMP_LOAD_FAILED: false,
@@ -325,7 +327,7 @@
 
         _set(st) {
             this.compState = st;
-            console.log(JSON.stringify(st));
+            // console.log(JSON.stringify(st));
         }
     }
 </script>

@@ -4,29 +4,46 @@
   </div>
 </template>
 <script>
-  import PingAPI from '@/services/ping.api.js';
+    import PingAPI from '@/services/ping.api.js';
+    import { ajax } from 'rxjs/ajax';
+    import {timer, combineLatest, interval, of, Subject, defer} from 'rxjs';
+    import {
+        retryWhen,
+        delayWhen,
+        retry,
+        catchError,
+        map,
+        share,
+        startWith,
+        switchMap,
+        tap,
+        delay,
+        pairwise
+    } from 'rxjs/operators';
 
-  export default {
-    methods: {
-      pingServer() {
-        PingAPI.ping().then(() => {
-          console.log("Starter started");
-          this.$router.push({ name: 'home' })
-        }, (response) => {
-          if(error.response.status === 421){
-            console.log("Server not started. retrying in one second");
-            setTimeout(function () {
-              this.pingServer()
-            }.bind(this), 1000)
-          }else {
-            console.log("server failed with some other error");
-            this.$router.push("error");
-          }
-        });
-      }
-    },
-    mounted() {
-      this.pingServer();
-    }
-  };
+    export default {
+        methods: {
+            pingServer() {
+                ajax(`http://localhost:8080/api/v1/ping`)
+                    .pipe(retryWhen(errors => errors.pipe(delay(2000)))) // retry every 2 seconds
+                    .subscribe(()=>{
+                        this.$router.push({name: 'home'});
+                    });
+
+                // PingAPI.ping()
+                //     .pipe(catchError(error => {
+                //         console.log(error);
+                //         return Promise.reject(error)
+                //     }))
+                //     .pipe(retry(3))
+                // .pipe(retryWhen(errors => {
+                //     return timer(2000).pipe(tap(console.log));
+                // }))
+                // .subscribe(console.log);
+            }
+        },
+        mounted() {
+            this.pingServer();
+        }
+    };
 </script>
