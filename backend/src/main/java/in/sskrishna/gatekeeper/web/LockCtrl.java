@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping(path = "/debug/v1")
 public class LockCtrl {
@@ -22,5 +24,10 @@ public class LockCtrl {
     @GetMapping("/islocked")
     public boolean islocked(@RequestParam("key") String key) {
         return GlobalLockRepo.isLocked(key);
+    }
+
+    @GetMapping("/alllocks")
+    public Set<String> allLocks(@RequestParam("key") String key) {
+        return GlobalLockRepo.getAllLockedKeys();
     }
 }

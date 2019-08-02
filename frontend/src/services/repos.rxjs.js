@@ -1,5 +1,5 @@
-import {BehaviorSubject, combineLatest, interval, of, Subject, defer} from 'rxjs';
-import {catchError, map, share, startWith, switchMap, tap, delay, pairwise} from 'rxjs/operators';
+import {BehaviorSubject, combineLatest, of} from 'rxjs';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import rxios from "./api.client"
 
 let http = new rxios({}, false, true);

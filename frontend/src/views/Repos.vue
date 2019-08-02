@@ -34,7 +34,7 @@
         v-show="!repo.uiHide"
         v-for="repo in repoStore.repos" :key="repo.id"
         :class="{selected: Boolean(selectedRepo) && selectedRepo.id === repo.id}"
-        @click.native="uiSetSelectedRepoIndex(repo)"
+        @click.native="uiSetSelectedRepo(repo)"
         :repo="repo"></Repotitle>
     </div>
     <div class="repos-new-content-container">
@@ -80,7 +80,7 @@
         },
         data() {
             return {
-                sm: new StateMachine(this),
+                sm: new ReposStateMachine(this),
                 repoStore: {
                     REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
                     repos: [],
@@ -98,28 +98,7 @@
             };
         },
         methods: {
-            uiIsVisible(key) {
-                if (key === 'LOADING_REPO') {
-                    return this.repoStore.REPO_LOAD_STATE === 'LOADING';
-                }
-                if (key === 'LOADING_REPO_FAILED') {
-                    return this.repoStore.REPO_LOAD_STATE === 'FAILED';
-                }
-                if (key === 'UPDATE_REPO_FAILED') {
-                    return this.repoStore.REPO_LOAD_STATE === 'UPDATE_FAILED';
-                }
-                if (key === 'REPO_NOT_SELECTED') {
-                    if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
-                    if (!this.selectedRepo) return true;
-                    if (this.selectedRepo.uiHide) return true;
-                }
-                if (key === 'SHOW_REPO') {
-                    if (this.repoStore.REPO_LOAD_STATE !== 'LOADED') return false;
-                    if (!this.selectedRepo) return false;
-                    if (!this.selectedRepo.uiHide) return true;
-                }
-            },
-            uiSetSelectedRepoIndex(repo) {
+            uiSetSelectedRepo(repo) {
                 this.selectedRepo = repo;
                 this.sm.state("REPO_SELECTED");
                 this.repoSubject$.next(this.selectedRepo);
@@ -171,7 +150,7 @@
                 }
 
                 let isRepoChanged = (oldRepo, newRepo) => {
-                    if(!oldRepo && !newRepo) return false;
+                    if (!oldRepo && !newRepo) return false;
                     if (oldRepo && !newRepo || !oldRepo && newRepo) {
                         return true;
                     }
@@ -180,7 +159,7 @@
                     return lastRefreshChanged || progressChanged;
                 };
 
-                if(isRepoChanged(this.selectedRepo, updatedRepo)){
+                if (isRepoChanged(this.selectedRepo, updatedRepo)) {
                     this.selectedRepo = updatedRepo;
                     this.repoSubject$.next(this.selectedRepo);
                 } else {
@@ -202,7 +181,7 @@
         }
     };
 
-    class StateMachine {
+    class ReposStateMachine {
         constructor(self) {
             this.self = self;
             this.data = {
