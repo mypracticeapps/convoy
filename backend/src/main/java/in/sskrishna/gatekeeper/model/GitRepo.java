@@ -10,7 +10,6 @@ import java.util.Set;
 
 @Data
 public class GitRepo extends Entity {
-    private String version;
     private String name;
     private String owner;
     private String url;
