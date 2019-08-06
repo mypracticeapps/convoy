@@ -202,6 +202,7 @@
       //     "INDEXED", "INDEX_FAILED", "QUEUED", "INDEXING"];
       if (uiState === 'REPO_CHANGED') {
         this.data.firstLoad = true;
+        this.currStates.delete("NO_REPO");
         this.currStates.delete("INDEXED");
         this.currStates.delete("INDEX_FAILED");
         this.currStates.delete("QUEUED");
@@ -216,6 +217,8 @@
           } else if (this.self.repo.status.progress === "ERROR") {
             this.currStates.add("INDEX_FAILED");
           }
+        } else {
+          this.currStates.add("NO_REPO");
         }
       } else if (uiState === 'LOADING_COMMITS') {
         this.currStates.add(uiState);
@@ -239,10 +242,91 @@
       //     "INDEXED", "INDEX_FAILED", "QUEUED", "INDEXING"];
 
       // repository undefined
+      if (this.currStates.has("NO_REPO")) {
+        this._set({
+          CMP_NO_REPO: true,
+          CMP_INDEXING: false,
+          CMP_QUEUED: false,
+          CMP_INDEX_ERROR: false,
+          CMP_LOADING_COMMITS: false,
+          CMP_LOADING_COMMITS_FAILED: false,
+          CMP_SHOW_COMMITS: false,
+        });
+      }
+
       // loading first set of commits
-      // loading next set of commits
-      // error loading commits and retry
-      // TODO
+      if (this.currStates.has("LOADING_COMMITS") && this.data.firstLoad) {
+        this._set({
+          CMP_NO_REPO: false,
+          CMP_INDEXING: false,
+          CMP_QUEUED: false,
+          CMP_INDEX_ERROR: false,
+          CMP_LOADING_COMMITS: true,
+          CMP_LOADING_COMMITS_FAILED: false,
+          CMP_SHOW_COMMITS: false,
+        });
+      }
+
+      // loading first set of commits failed
+      if (this.currStates.has("LOAD_FAILED_COMMITS") && this.data.firstLoad) {
+        this._set({
+          CMP_NO_REPO: false,
+          CMP_INDEXING: false,
+          CMP_QUEUED: false,
+          CMP_INDEX_ERROR: false,
+          CMP_LOADING_COMMITS: false,
+          CMP_LOADING_COMMITS_FAILED: true,
+          CMP_SHOW_COMMITS: false,
+        });
+      }
+
+      if (this.currStates.has("QUEUED")) {
+        this._set({
+          CMP_NO_REPO: false,
+          CMP_INDEXING: false,
+          CMP_QUEUED: true,
+          CMP_INDEX_ERROR: false,
+          CMP_LOADING_COMMITS: false,
+          CMP_LOADING_COMMITS_FAILED: false,
+          CMP_SHOW_COMMITS: false,
+        });
+      }
+
+      if (this.currStates.has("INDEXING")) {
+        this._set({
+          CMP_NO_REPO: false,
+          CMP_INDEXING: true,
+          CMP_QUEUED: false,
+          CMP_INDEX_ERROR: false,
+          CMP_LOADING_COMMITS: false,
+          CMP_LOADING_COMMITS_FAILED: false,
+          CMP_SHOW_COMMITS: false,
+        });
+      }
+
+      if (this.currStates.has("INDEXED")) {
+        this._set({
+          CMP_NO_REPO: false,
+          CMP_INDEXING: false,
+          CMP_QUEUED: false,
+          CMP_INDEX_ERROR: false,
+          CMP_LOADING_COMMITS: false,
+          CMP_LOADING_COMMITS_FAILED: false,
+          CMP_SHOW_COMMITS: true,
+        });
+      }
+
+      if (this.currStates.has("INDEX_FAILED")) {
+        this._set({
+          CMP_NO_REPO: false,
+          CMP_INDEXING: false,
+          CMP_QUEUED: false,
+          CMP_INDEX_ERROR: true,
+          CMP_LOADING_COMMITS: false,
+          CMP_LOADING_COMMITS_FAILED: false,
+          CMP_SHOW_COMMITS: false,
+        });
+      }
     }
 
     _set(st) {
