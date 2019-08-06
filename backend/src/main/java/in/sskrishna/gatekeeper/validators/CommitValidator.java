@@ -35,7 +35,7 @@ public class CommitValidator {
         formError.throwIfContainsErrors(422, "repo.form.invalid");
 
         // validate repository
-        GitRepo repo = this.gitRepository.findOne(repoId);
+        GitRepo repo = this.gitRepository.findById(repoId).get();
         if (repo == null) {
             formError.rejectField("repoId", repoId, "repo.not.found");
         } else if (!repo.getStatus().isInitialized()) {
@@ -44,11 +44,10 @@ public class CommitValidator {
         formError.throwIfContainsErrors(422, "repo.form.invalid");
 
         // validate commit
-        Object commitObj = this.commitRepository.findOne(fromCommitId);
-        if (commitObj == null) {
+        Commit commit = this.commitRepository.findById(fromCommitId).get();
+        if (commit == null) {
             formError.rejectField("commitId", fromCommitId, "repo.commit.not.found");
         } else {
-            Commit commit = (Commit) commitObj;
             if (!commit.getRepoId().equals(repoId)) {
                 formError.rejectField("commitId", fromCommitId, "repo.commit.mapping.invalid");
             }

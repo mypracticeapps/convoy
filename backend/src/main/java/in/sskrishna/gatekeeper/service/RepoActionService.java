@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 @Service
@@ -36,7 +37,7 @@ public class RepoActionService {
 
     public void refreshGit(String repoId) {
         repoServiceValidator.validateGetOne(repoId);
-        GitRepo repo = this.gitRepository.findOne(repoId);
+        GitRepo repo = this.gitRepository.findById(repoId).get();
         this.gitService.refresh(repo);
     }
 

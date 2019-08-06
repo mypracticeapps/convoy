@@ -1,15 +1,7 @@
 package in.sskrishna.gatekeeper;
 
-import in.sskrishna.gatekeeper.repository.rethink.RethinkUtil;
 import io.codearte.jfairy.Fairy;
-import io.codearte.jfairy.producer.company.Company;
-import io.codearte.jfairy.producer.person.Address;
 import io.codearte.jfairy.producer.person.Person;
-import lombok.Data;
-import org.joda.time.DateTime;
-
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 
 public class Main {
     public static void main(String args[]) {

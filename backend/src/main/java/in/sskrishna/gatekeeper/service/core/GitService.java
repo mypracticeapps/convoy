@@ -45,7 +45,7 @@ public class GitService {
 
     public void refresh(GitRepo repo) {
         if (!this.lockResource(GlobalKeys.REPO_INDEX, repo.getId())) {
-            log.info("Repository is already being indexed. skiping reaquest to refresh: ", repo.getId());
+            log.info("Repository is already being indexed. skipping request to refresh: ", repo.getId());
             return;
         }
 
@@ -79,12 +79,15 @@ public class GitService {
             if (!gitProvider.exists()) {
                 log.info("repo does not exists. attempting to clone: {}", repoId);
                 gitProvider.cloneGit();
-                log.info("fetching repository: {}", repoId);
-                gitProvider.fetch();
+
+                // TODO ENABLE PROD
+//                log.info("fetching repository: {}", repoId);
+//                gitProvider.fetch();
             } else {
-                log.info("repo exists. skipping clone: {}", repoId);
-                log.info("fetching repository: {}", repoId);
-                gitProvider.fetch();
+                // TODO ENABLE PROD
+//                log.info("repo exists. skipping clone: {}", repoId);
+//                log.info("fetching repository: {}", repoId);
+//                gitProvider.fetch();
             }
             ZonedDateTime taskNow = ZonedDateTime.now();
             log.info("retrieving branches info from git for: {}",   repoId);
@@ -97,7 +100,7 @@ public class GitService {
             taskNow = ZonedDateTime.now();
             log.info("retrieving commits info from git for: {}",   repoId);
             Map<String, Commit> commitMap = gitProvider.getCommits();
-            this.commitRepository.save(commitMap.values());
+            this.commitRepository.saveAll(commitMap.values());
             log.info("saving commits info for: {}", repoId);
             log.info("updated commit history. time taken: {}", taskNow.until(ZonedDateTime.now(), ChronoUnit.SECONDS));
 

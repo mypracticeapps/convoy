@@ -3,13 +3,21 @@ package in.sskrishna.gatekeeper.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.sskrishna.rest.response.ErrorDetail;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 @Data
-public class GitRepo extends Entity {
+public class GitRepo {
+    @Id
+    private String id;
+    @Version
+    private long version;
+
     private String name;
     private String owner;
     private String url;
@@ -23,6 +31,7 @@ public class GitRepo extends Entity {
     private Status status = new Status();
 
     @Data
+    @NoArgsConstructor
     public static class Branch {
         private String name;
         private String latestCommitId;

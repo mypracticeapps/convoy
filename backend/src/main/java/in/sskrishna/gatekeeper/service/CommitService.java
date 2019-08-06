@@ -34,7 +34,7 @@ public class CommitService {
             if (fromCommitId == null) {
                 break;
             }
-            Commit nextCommit = (Commit) this.commitRepository.findOne(fromCommitId);
+            Commit nextCommit = this.commitRepository.findById(fromCommitId).get();
             commitList.add(nextCommit);
             fromCommitId = nextCommit.getSortOrderNext();
         }

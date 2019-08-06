@@ -13,11 +13,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -44,7 +41,7 @@ public class StartupService {
             ZonedDateTime now = ZonedDateTime.now();
             log.info("Found {} repositories", this.gitRepository.findAll().size());
 
-            Set<GitRepo> repoSet = this.gitRepository.findAll();
+            List<GitRepo> repoSet = this.gitRepository.findAll();
             for (GitRepo repo : repoSet) {
                 this.gitService.refresh(repo);
             }
@@ -53,16 +50,6 @@ public class StartupService {
             log.info("Startup process finished. time taken: {} sec", seconds);
         } finally {
             GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
-//
-//            Runnable task = new Runnable() {
-//                public void run() {
-//                    GlobalLockRepo.unlock(GlobalLockRepo.KEYS.SERVER_BOOTING);
-//                }
-//            };
-//
-//            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-//            int delay = 30;
-//            scheduler.schedule(task, delay, TimeUnit.SECONDS);
         }
     }
 }

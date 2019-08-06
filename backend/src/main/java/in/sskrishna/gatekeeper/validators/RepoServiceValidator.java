@@ -23,7 +23,7 @@ public class RepoServiceValidator {
         formError.rejectIfEmpty(repoId, "repoId", "repo.id.required");
         formError.throwIfContainsErrors(422, "repo.form.invalid");
 
-        GitRepo repo = this.gitRepository.findOne(repoId);
+        GitRepo repo = this.gitRepository.findById(repoId).get();
         if (repo == null) {
             formError.rejectField("repoId", repoId, "repo.not.found");
         }

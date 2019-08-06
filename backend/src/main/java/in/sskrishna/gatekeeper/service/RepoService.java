@@ -33,7 +33,7 @@ public class RepoService {
 
     public GitRepo getOne(String repoId) {
         this.repoServiceValidator.validateGetOne(repoId);
-        return this.repository.findOne(repoId);
+        return this.repository.findById(repoId).get();
     }
 
     public void isLocked(String repoId) {
