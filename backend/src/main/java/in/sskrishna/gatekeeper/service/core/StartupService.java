@@ -35,13 +35,13 @@ public class StartupService {
         this.gitService = gitService;
     }
 
-    public void startUp() throws GitAPIException, IOException {
+    public void startUp() {
         try {
             GlobalLockRepo.lock(GlobalLockRepo.KEYS.SERVER_BOOTING);
             ZonedDateTime now = ZonedDateTime.now();
-            log.info("Found {} repositories", this.gitRepository.findAll().size());
+            log.info("Found {} repositories", this.gitRepository.count());
 
-            List<MyGit> repoSet = this.gitRepository.findAll();
+            Iterable<MyGit> repoSet = this.gitRepository.findAll();
             for (MyGit repo : repoSet) {
                 this.gitService.refresh(repo);
             }

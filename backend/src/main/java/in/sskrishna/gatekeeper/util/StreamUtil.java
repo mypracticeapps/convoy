@@ -24,4 +24,10 @@ public class StreamUtil {
         set.add(temp);
         return set;
     }
+
+    public static <T> Stream<T> from(Iterable<T> iterable){
+        List<T> list = new LinkedList<>();
+        iterable.forEach(list::add);
+        return list.stream();
+    }
 }

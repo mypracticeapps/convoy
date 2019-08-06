@@ -239,50 +239,10 @@
       //     "INDEXED", "INDEX_FAILED", "QUEUED", "INDEXING"];
 
       // repository undefined
-
       // loading first set of commits
       // loading next set of commits
       // error loading commits and retry
-
-
-      // initial loading
-      // console.log(this.currStates);
-      if (this.currStates.has("LOADING_COMMITS") && this.data.firstLoad) {
-        this._set({
-          CMP_INDEXING: false,
-          CMP_QUEUED: true,
-          CMP_INDEX_ERROR: false,
-          CMP_LOADING_COMMITS: true,
-          CMP_SHOW_COMMITS: false,
-        });
-      } else
-
-      // repos loaded but not selected
-      if (this.currStates.has("LOAD_COMPLETE") && this.currStates.has("REPO_NOT_SELECTED")) {
-        this._set({
-          CMP_SIDE_NAV: true,
-          CMP_LOADING: false,
-          CMP_UPDATE_FAILED: false,
-          CMP_LOAD_FAILED: false,
-          CMP_REPO_SELECT_NOTIFY: true,
-          CMP_SHOW_REPO: false
-        });
-      } else
-
-      // repos loaded and selected
-      if (this.currStates.has("LOAD_COMPLETE") && this.currStates.has("REPO_SELECTED")) {
-        this._set({
-          CMP_SIDE_NAV: true,
-          CMP_LOADING: false,
-          CMP_UPDATE_FAILED: false,
-          CMP_LOAD_FAILED: false,
-          CMP_REPO_SELECT_NOTIFY: false,
-          CMP_SHOW_REPO: true
-        });
-      } else {
-        console.log("CALC NO CONDITION FOUND");
-        console.log(this.currStates)
-      }
+      // TODO
     }
 
     _set(st) {

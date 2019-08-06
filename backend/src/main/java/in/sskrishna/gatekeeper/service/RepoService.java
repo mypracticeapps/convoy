@@ -4,6 +4,7 @@ import in.sskrishna.gatekeeper.model.MyGit;
 import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
+import in.sskrishna.gatekeeper.util.StreamUtil;
 import in.sskrishna.gatekeeper.validators.RepoServiceValidator;
 import io.sskrishna.rest.response.RestErrorBuilder;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class RepoService {
 
     public List<MyGit> getRepos() {
         this.verifyLock(GlobalKeys.SERVER_BOOT);
-        return this.repository.findAll().stream().sorted(this.sortByName()).collect(Collectors.toList());
+        return StreamUtil.from(this.repository.findAll()).sorted(this.sortByName()).collect(Collectors.toList());
     }
 
     public MyGit getOne(String repoId) {
