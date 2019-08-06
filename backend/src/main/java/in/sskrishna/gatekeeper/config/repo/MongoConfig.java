@@ -2,9 +2,11 @@ package in.sskrishna.gatekeeper.config.repo;
 
 import com.mongodb.MongoClient;
 import in.sskrishna.gatekeeper.model.Commit;
-import in.sskrishna.gatekeeper.model.GitRepo;
+import in.sskrishna.gatekeeper.model.MyGit;
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
+import in.sskrishna.gatekeeper.repository.mongo.MongoCommitRepo;
+import in.sskrishna.gatekeeper.repository.mongo.MongoMyGitRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +30,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public GitRepoRepository gitRepoRepository(MongoTemplate mongoTemplate) {
-        MongoRepositoryFactoryBean<GitRepoRepository, GitRepo, String> myFactory = new MongoRepositoryFactoryBean<GitRepoRepository, GitRepo, String>(GitRepoRepository.class);
+    public MyGitRepository gitRepoRepository(MongoTemplate mongoTemplate) {
+        MongoRepositoryFactoryBean<MongoMyGitRepository, MyGit, String> myFactory = new MongoRepositoryFactoryBean(MongoMyGitRepository.class);
         myFactory.setMongoOperations(mongoTemplate);
         myFactory.afterPropertiesSet();
         return myFactory.getObject();
@@ -37,7 +39,7 @@ public class MongoConfig {
 
     @Bean
     public CommitRepo commitRepo(MongoTemplate mongoTemplate) {
-        MongoRepositoryFactoryBean<CommitRepo, Commit, String> myFactory = new MongoRepositoryFactoryBean<>(CommitRepo.class);
+        MongoRepositoryFactoryBean<MongoCommitRepo, Commit, String> myFactory = new MongoRepositoryFactoryBean<>(MongoCommitRepo.class);
         myFactory.setMongoOperations(mongoTemplate);
         myFactory.afterPropertiesSet();
         return myFactory.getObject();

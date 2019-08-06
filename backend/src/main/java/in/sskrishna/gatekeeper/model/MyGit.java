@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 @Data
-public class GitRepo {
+public class MyGit {
     @Id
     private String id;
     @Version

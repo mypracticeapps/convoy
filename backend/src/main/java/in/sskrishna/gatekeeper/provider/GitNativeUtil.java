@@ -1,6 +1,6 @@
 package in.sskrishna.gatekeeper.provider;
 
-import in.sskrishna.gatekeeper.model.GitRepo;
+import in.sskrishna.gatekeeper.model.MyGit;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.BufferedReader;
@@ -11,10 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class GitNativeUtil {
-    private final GitRepo gitRepo;
+    private final MyGit myGit;
 
-    public GitNativeUtil(GitRepo gitRepo) {
-        this.gitRepo = gitRepo;
+    public GitNativeUtil(MyGit myGit) {
+        this.myGit = myGit;
     }
 
     private static final String LATEST_COMMIT_CMD = "git log {branch} --format=\"%H\" -n 1\n";
@@ -51,7 +51,7 @@ public class GitNativeUtil {
         if (SystemUtils.IS_OS_WINDOWS) {
             return -1;
         }
-        String cmd = this.DISK_SIZE.replace("{dir}", this.gitRepo.getLocalDir());
+        String cmd = this.DISK_SIZE.replace("{dir}", this.myGit.getLocalDir());
         String result = this.execute(cmd);
         String size = result.split("\t")[0];
         return Integer.valueOf(size);
@@ -59,7 +59,7 @@ public class GitNativeUtil {
 
     public List<String> executeMultiLine(String cmd) throws IOException, InterruptedException {
         List<String> lines = new LinkedList<>();
-        Process process = Runtime.getRuntime().exec(cmd, null, new File(this.gitRepo.getLocalDir()));
+        Process process = Runtime.getRuntime().exec(cmd, null, new File(this.myGit.getLocalDir()));
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line;
         while ((line = in.readLine()) != null) {

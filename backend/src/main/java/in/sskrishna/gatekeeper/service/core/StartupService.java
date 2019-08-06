@@ -1,7 +1,7 @@
 package in.sskrishna.gatekeeper.service.core;
 
-import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.model.MyGit;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.ErrorCodeLookup;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +21,13 @@ import java.util.concurrent.ExecutorService;
 public class StartupService {
     private final ExecutorService globalExecutorService;
     private final ErrorCodeLookup errorCodeLookup;
-    private final GitRepoRepository gitRepository;
+    private final MyGitRepository gitRepository;
     private final GitService gitService;
 
     @Autowired
     public StartupService(@Qualifier("GlobalExecutorService") ExecutorService globalExecutorService,
                           ErrorCodeLookup errorCodeLookup,
-                          GitRepoRepository gitRepository,
+                          MyGitRepository gitRepository,
                           GitService gitService) {
         this.globalExecutorService = globalExecutorService;
         this.errorCodeLookup = errorCodeLookup;
@@ -41,8 +41,8 @@ public class StartupService {
             ZonedDateTime now = ZonedDateTime.now();
             log.info("Found {} repositories", this.gitRepository.findAll().size());
 
-            List<GitRepo> repoSet = this.gitRepository.findAll();
-            for (GitRepo repo : repoSet) {
+            List<MyGit> repoSet = this.gitRepository.findAll();
+            for (MyGit repo : repoSet) {
                 this.gitService.refresh(repo);
             }
 

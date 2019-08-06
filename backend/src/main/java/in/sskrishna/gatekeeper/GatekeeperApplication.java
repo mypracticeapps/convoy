@@ -1,7 +1,5 @@
 package in.sskrishna.gatekeeper;
 
-import in.sskrishna.gatekeeper.benchmark.mongo.MongoBenchmark;
-import in.sskrishna.gatekeeper.benchmark.rethink.RethinkBenchmark;
 import in.sskrishna.gatekeeper.service.core.StartupService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class})
-@ComponentScan(excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {MongoBenchmark.class, RethinkBenchmark.class})})
+@ComponentScan(excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {})})
 public class GatekeeperApplication {
 
     public static void main(String[] args) {

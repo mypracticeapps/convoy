@@ -18,7 +18,7 @@ public class RethinkUtil {
     private static final Gson gson = new Gson();
     private final Connection connection;
 
-    public RethinkUtil(@Qualifier("rethink") Connection connection) {
+    public RethinkUtil(Connection connection) {
         this.connection = connection;
     }
 

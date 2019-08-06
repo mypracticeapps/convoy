@@ -1,7 +1,7 @@
 package in.sskrishna.gatekeeper.validators;
 
-import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.model.MyGit;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.FormError;
 import io.sskrishna.rest.response.RestErrorBuilder;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RepoServiceValidator {
     private final RestErrorBuilder errorBuilder;
-    private final GitRepoRepository gitRepository;
+    private final MyGitRepository gitRepository;
 
     public RepoServiceValidator(RestErrorBuilder errorBuilder,
-                                GitRepoRepository gitRepository) {
+                                MyGitRepository gitRepository) {
         this.errorBuilder = errorBuilder;
         this.gitRepository = gitRepository;
     }
@@ -23,7 +23,7 @@ public class RepoServiceValidator {
         formError.rejectIfEmpty(repoId, "repoId", "repo.id.required");
         formError.throwIfContainsErrors(422, "repo.form.invalid");
 
-        GitRepo repo = this.gitRepository.findById(repoId).get();
+        MyGit repo = this.gitRepository.findById(repoId).get();
         if (repo == null) {
             formError.rejectField("repoId", repoId, "repo.not.found");
         }

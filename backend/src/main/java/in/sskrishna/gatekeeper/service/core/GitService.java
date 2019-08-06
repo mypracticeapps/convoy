@@ -1,12 +1,12 @@
 package in.sskrishna.gatekeeper.service.core;
 
 import in.sskrishna.gatekeeper.model.Commit;
-import in.sskrishna.gatekeeper.model.GitRepo;
+import in.sskrishna.gatekeeper.model.MyGit;
 import in.sskrishna.gatekeeper.provider.GitNativeUtil;
 import in.sskrishna.gatekeeper.provider.GitProvider;
 import in.sskrishna.gatekeeper.provider.GitProviderImpl;
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.ErrorCodeLookup;
@@ -30,11 +30,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class GitService {
     private final ExecutorService globalExecutorService;
     private final ErrorCodeLookup errorCodeLookup;
-    private final GitRepoRepository gitRepository;
+    private final MyGitRepository gitRepository;
     private final CommitRepo commitRepository;
 
     public GitService(@Qualifier("GlobalExecutorService") ExecutorService globalExecutorService,
-                      GitRepoRepository gitRepository,
+                      MyGitRepository gitRepository,
                       ErrorCodeLookup errorCodeLookup,
                       CommitRepo commitRepository) {
         this.globalExecutorService = globalExecutorService;
@@ -43,13 +43,13 @@ public class GitService {
         this.commitRepository = commitRepository;
     }
 
-    public void refresh(GitRepo repo) {
+    public void refresh(MyGit repo) {
         if (!this.lockResource(GlobalKeys.REPO_INDEX, repo.getId())) {
             log.info("Repository is already being indexed. skipping request to refresh: ", repo.getId());
             return;
         }
 
-        repo.getStatus().setProgress(GitRepo.Status.Progress.QUEUED);
+        repo.getStatus().setProgress(MyGit.Status.Progress.QUEUED);
         this.gitRepository.save(repo);
         Runnable runnable = new Runnable() {
             @Override
@@ -66,11 +66,11 @@ public class GitService {
         this.globalExecutorService.submit(runnable);
     }
 
-    public void refreshSync(GitRepo repo) {
+    public void refreshSync(MyGit repo) {
         String repoId = repo.getId();
         ZonedDateTime now = ZonedDateTime.now();
         GitProvider gitProvider = new GitProviderImpl(repo);
-        repo.getStatus().setProgress(GitRepo.Status.Progress.IN_PROGRESS);
+        repo.getStatus().setProgress(MyGit.Status.Progress.IN_PROGRESS);
         this.gitRepository.save(repo);
         try {
             log.info("removing all info from db that belongs to: {}", repoId);
@@ -91,7 +91,7 @@ public class GitService {
             }
             ZonedDateTime taskNow = ZonedDateTime.now();
             log.info("retrieving branches info from git for: {}",   repoId);
-            Set<GitRepo.Branch> branches = gitProvider.getBranches();
+            Set<MyGit.Branch> branches = gitProvider.getBranches();
             repo.setBranches(branches);
             log.info("saving branches info for: {}", repoId);
             this.gitRepository.save(repo);
@@ -107,7 +107,7 @@ public class GitService {
             taskNow = ZonedDateTime.now();
             log.info("updating repo info for: " + repoId);
             repo.setTotalCommits(commitMap.size());
-            repo.getStatus().setProgress(GitRepo.Status.Progress.DONE);
+            repo.getStatus().setProgress(MyGit.Status.Progress.DONE);
             repo.setDiskUsage(new GitNativeUtil(repo).getDiskUsage());
             repo.getStatus().setLastRefreshedAt(System.currentTimeMillis());
             this.gitRepository.save(repo);
@@ -124,11 +124,11 @@ public class GitService {
         }
     }
 
-    private void handleException(GitRepo repo, String code, Exception exception) {
+    private void handleException(MyGit repo, String code, Exception exception) {
         ErrorDetail errorDetail = this.errorCodeLookup.getErrorCode(code);
         errorDetail.setCause(exception.getMessage());
         repo.getStatus().addError(errorDetail);
-        repo.getStatus().setProgress(GitRepo.Status.Progress.ERROR);
+        repo.getStatus().setProgress(MyGit.Status.Progress.ERROR);
         this.gitRepository.save(repo);
     }
 
