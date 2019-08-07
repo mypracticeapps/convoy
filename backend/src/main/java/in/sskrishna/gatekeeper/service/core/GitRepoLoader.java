@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -67,13 +68,12 @@ public class GitRepoLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         List<MyGit> repoSet = this.load();
-        for(MyGit myGit : repoSet){
+        for (MyGit myGit : repoSet) {
+            Optional<MyGit> oldGit = this.repository.findById(myGit.getId());
+            if (oldGit.isPresent()) {
+                myGit.setVersion(oldGit.get().getVersion());
+            }
             this.repository.save(myGit);
-//            if(this.repository.findById(myGit.getId()).isPresent()){
-//                this.repository.save(myGit);
-//            }else {
-//                this.repository.insert(myGit);
-//            }
         }
         log.info("loaded {} git repo configs", this.repository.count());
     }
