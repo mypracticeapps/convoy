@@ -105,3 +105,15 @@ body,
     overflow-y: auto;
   }
 }
+
+#nprogress {
+  .bar {
+    background: #00a8ff !important;
+    height: 4px !important;
+  }
+  .spinner-icon {
+    border-top-color: #00a8ff !important;
+    border-left-color: #00a8ff !important;
+  }
+}
+

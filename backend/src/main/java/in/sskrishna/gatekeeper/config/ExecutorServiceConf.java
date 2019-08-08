@@ -18,12 +18,12 @@ public class ExecutorServiceConf {
     @Qualifier("GlobalExecutorService")
     public ExecutorService executorService() {
         int cores = Runtime.getRuntime().availableProcessors();
-//        cores = 4;
         log.info("Number of available CPU cores: {}", cores);
-        int minThreads = cores;
-        int maxThreads = cores * 2;
+//        cores = 1;
+	    int minThreads = cores;
+        int maxThreads = cores * 4;
         int keepAliveTime = 360;
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(1000);
         ExecutorService executorService = new ThreadPoolExecutor(minThreads, maxThreads, keepAliveTime, TimeUnit.SECONDS, queue);
         return executorService;
     }

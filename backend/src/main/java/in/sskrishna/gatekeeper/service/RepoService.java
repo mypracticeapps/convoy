@@ -1,9 +1,10 @@
 package in.sskrishna.gatekeeper.service;
 
-import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.model.MyGit;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
+import in.sskrishna.gatekeeper.util.StreamUtil;
 import in.sskrishna.gatekeeper.validators.RepoServiceValidator;
 import io.sskrishna.rest.response.RestErrorBuilder;
 import org.springframework.stereotype.Service;
@@ -16,34 +17,34 @@ import java.util.stream.Collectors;
 public class RepoService {
     private final RestErrorBuilder errorBuilder;
     private final RepoServiceValidator repoServiceValidator;
-    private final GitRepoRepository repository;
+    private final MyGitRepository repository;
 
     public RepoService(RestErrorBuilder errorBuilder,
                        RepoServiceValidator repoServiceValidator,
-                       GitRepoRepository repository) {
+                       MyGitRepository repository) {
         this.errorBuilder = errorBuilder;
         this.repoServiceValidator = repoServiceValidator;
         this.repository = repository;
     }
 
-    public List<GitRepo> getRepos() {
+    public List<MyGit> getRepos() {
         this.verifyLock(GlobalKeys.SERVER_BOOT);
-        return this.repository.findAll().stream().sorted(this.sortByName()).collect(Collectors.toList());
+        return StreamUtil.from(this.repository.findAll()).sorted(this.sortByName()).collect(Collectors.toList());
     }
 
-    public GitRepo getOne(String repoId) {
+    public MyGit getOne(String repoId) {
         this.repoServiceValidator.validateGetOne(repoId);
-        return this.repository.findOne(repoId);
+        return this.repository.findById(repoId).get();
     }
 
     public void isLocked(String repoId) {
         this.verifyLock(GlobalKeys.REPO_INDEX, repoId);
     }
 
-    private Comparator<GitRepo> sortByName() {
-        Comparator<GitRepo> commitComparator = new Comparator<GitRepo>() {
+    private Comparator<MyGit> sortByName() {
+        Comparator<MyGit> commitComparator = new Comparator<MyGit>() {
             @Override
-            public int compare(GitRepo repo1, GitRepo repo2) {
+            public int compare(MyGit repo1, MyGit repo2) {
                 return repo1.getName().compareTo(repo2.getName());
             }
         };

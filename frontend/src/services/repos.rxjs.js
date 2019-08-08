@@ -1,49 +1,87 @@
-import {Subject, interval, of, combineLatest} from 'rxjs';
-import {ajax} from 'rxjs/ajax';
-import {switchMap, pluck, catchError, startWith, map, share, tap, withLatestFrom} from 'rxjs/operators';
-import axios from "axios";
+import {BehaviorSubject, combineLatest, of} from 'rxjs';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import rxios from "./api.client"
 
-const store = {
-  REPO_LOAD_STATE: 'LOADING', // LOADING, LOADED, FAILED, UPDATE_FAILED
-  repos: [],
-  response: {}
-};
+let http = new rxios({}, false, true);
+
+import axios from 'axios';
+import _ from 'lodash';
+
+const REFRESH_INTERVAL = 2000;
+const ALL_REPOS_URL = process.env.VUE_APP_ROOT_API + `/repos`;
 
 const filter = {
-  sortBy: 'COMMITS',
+  sortBy: 'PROGRESS',
   sortOrder: 'ASCENDING', // ASCENDING
   searchTerm: ''
 };
 
-const filterSubject$ = new Subject();
-const filter$ = filterSubject$.asObservable().pipe(startWith(filter), share());
-const getAllReposUrl = process.env.VUE_APP_ROOT_API + `/repos`;
 
-const mapAjaxSuccessResponse = (response) => {
-  store.repos = response.response.data;
-  store.response = response;
-  store.REPO_LOAD_STATE = "LOADED";
-  return Object.assign({}, store);
+const mapSuccess = (response) => {
+  let store = {
+    repos: response.data.data,
+    response: response,
+    filter: filter,
+    REPO_LOAD_STATE: "REPO_API_LOADED"
+  };
+  return store;
 };
 
-const mapAjaxFailureResponse = (response) => {
-  store.response = response;
-  if (store.REPO_LOAD_STATE === 'LOADED' || store.REPO_LOAD_STATE === 'UPDATE_FAILED') {
-    store.REPO_LOAD_STATE = "UPDATE_FAILED";
-  } else if (store.REPO_LOAD_STATE === 'LOADING' || store.REPO_LOAD_STATE === 'FAILED') {
-    store.REPO_LOAD_STATE = "FAILED";
+const mapFailed = (response) => {
+  let store = {
+    repos: [],
+    response: response,
+    filter: filter,
+    REPO_LOAD_STATE: "REPO_API_FAILED"
+  };
+  return of(store);
+};
+
+const filterRepos = (repoStore) => {
+  let searchTerm = repoStore.filter.searchTerm;
+  repoStore.repos.forEach((repo) => repo.uiHide = true);
+  repoStore.repos.forEach((repo) => {
+    if (repo.name.includes(searchTerm)) {
+      repo.uiHide = false;
+    }
+  });
+  return repoStore;
+};
+
+const sortRepos = (repoStore) => {
+  let terms = repoStore.filter;
+  // console.log(repoStore)
+  let callback = "";
+  if (terms.sortBy === 'NAME') {
+    callback = (repo) => repo.name;
   }
-  return of(Object.assign({}, store));
+  if (terms.sortBy === 'BRANCHES') {
+    callback = (repo) => repo.branches.length;
+  }
+  if (terms.sortBy === 'COMMITS') {
+    callback = (repo) => repo.totalCommits;
+  }
+  if (terms.sortBy === 'DISK_SIZE') {
+    callback = (repo) => repo.diskUsage;
+  }
+  if (terms.sortBy === 'REFRESH' || terms.sortBy === 'PROGRESS') {
+    callback = (repo) => repo.status.lastRefreshedAt;
+  }
+  let repos = genericSort(repoStore.repos, callback, terms.sortOrder);
+
+  if (terms.sortBy === 'PROGRESS') {
+    let inProgress = _.remove(repos, repo => repo.status.progress === "IN_PROGRESS");
+    let queued = _.remove(repos, repo => repo.status.progress === "QUEUED");
+    let others = repos;
+    repos = [];
+    repos.push(...inProgress);
+    repos.push(...queued);
+    repos.push(...others);
+  }
+  repoStore.repos = repos;
+  return repoStore;
 };
 
-const filterReposFromStream = (val) => {
-  let repoStore = val[1];
-  let terms = val[0];
-  repoStore.repos.forEach((repo) => repo.uiHide = false);
-  repoStore.repos.forEach((repo) => repo.uiHide = repo.name.includes(terms.searchTerm) ? false : true);
-  // repoStore.repos = repos;
-  return [terms, repoStore];
-};
 
 const genericSort = (arr, callback, orderBy) => {
   arr = arr.sort(function (val1, val2) {
@@ -62,66 +100,36 @@ const genericSort = (arr, callback, orderBy) => {
   return arr;
 };
 
-const sortReposFromStream = (val) => {
-  let repoStore = val[1];
-  let terms = val[0];
-  let callback = "";
-  if (terms.sortBy === 'NAME') {
-    callback = (repo) => repo.name;
-  }
-  if (terms.sortBy === 'BRANCHES') {
-    callback = (repo) => repo.branches.length;
-  }
-  if (terms.sortBy === 'COMMITS') {
-    callback = (repo) => repo.totalCommits;
-  }
-  if (terms.sortBy === 'DISK_SIZE') {
-    callback = (repo) => repo.diskUsage;
-  }
-  if (terms.sortBy === 'REFRESH') {
-    callback = (repo) => repo.status.lastRefreshedAt;
-  }
-  let repos = genericSort(repoStore.repos, callback, terms.sortOrder);
-  repoStore.repos = repos;
-  return [terms, repoStore];
-};
+let key$ = new BehaviorSubject(1);
+let filter$ = new BehaviorSubject(filter);
+let pa$ = http.get(ALL_REPOS_URL).pipe(map(mapSuccess), catchError(mapFailed));
 
-
-const plunkRepos = (val) => {
-  return val[1];
-};
-
-const reposAjax$ = ajax(getAllReposUrl)
-  .pipe(
-    map(mapAjaxSuccessResponse),
-    catchError(mapAjaxFailureResponse),
-  );
-
-const interval$ = interval(2000).pipe(startWith(0));
-
-const repos$ = interval$.pipe(
-  switchMap(() => reposAjax$),
-  startWith(store),
-  share()
+let repos$ = key$.pipe(
+  switchMap(() => pa$),
+  tap(() => setTimeout(function () {
+    key$.next()
+  }, REFRESH_INTERVAL))
 );
+let filteredRepos$ = combineLatest(repos$, filter$, (repos, filters) => {
+  repos.filter = filters;
+  return repos
+})
+  .pipe(map(filterRepos), map(sortRepos));
 
-let filteredRepos = combineLatest(filter$.pipe(), repos$)
-  .pipe(map(filterReposFromStream), map(sortReposFromStream), map(plunkRepos));
-// filteredRepos = filteredRepos.pipe(tap(val=>console.log(process.env)));
 
 let RepoAPI = {
-  repos$: filteredRepos,
+  repos$: filteredRepos$,
   setSortBy(val) {
     filter.sortBy = val.toUpperCase();
-    filterSubject$.next(filter);
+    filter$.next(filter);
   },
   setSortOrder(val) {
     filter.sortOrder = val.toUpperCase();
-    filterSubject$.next(filter);
+    filter$.next(filter);
   },
   setSearchTerm(val) {
     filter.searchTerm = val;
-    filterSubject$.next(filter);
+    filter$.next(filter);
   },
   refreshGit(repo) {
     let repoId = "repoId=" + repo.id;
@@ -133,3 +141,6 @@ let RepoAPI = {
 };
 
 export default RepoAPI;
+
+
+

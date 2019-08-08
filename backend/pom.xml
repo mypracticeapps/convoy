@@ -10,13 +10,14 @@
     </parent>
     <groupId>in.sskrishna</groupId>
     <artifactId>gatekeeper</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.5</version>
     <name>gatekeeper</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
         <java.version>1.8</java.version>
         <cache2k-version>1.2.2.Final</cache2k-version>
+        <start-class>in.sskrishna.gatekeeper.GatekeeperApplication</start-class>
     </properties>
 
     <dependencies>
@@ -37,7 +38,11 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.sskrishna</groupId>
             <artifactId>rest-response</artifactId>
@@ -71,6 +76,13 @@
             <artifactId>gson</artifactId>
             <version>2.8.5</version>
         </dependency>
+
+<!--        &lt;!&ndash; Mongo Helper &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.jongo</groupId>-->
+<!--            <artifactId>jongo</artifactId>-->
+<!--            <version>1.4.0</version>-->
+<!--        </dependency>-->
 
         <!-- Fake Date generator for benchmarking database -->
         <dependency>

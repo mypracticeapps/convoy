@@ -31,13 +31,19 @@ public final class GlobalLockRepo {
         return locks.contains(key);
     }
 
+    public static Set<String> getAllLockedKeys() {
+        return Collections.unmodifiableSet(locks);
+    }
+
     private static String buildKey(Object... keys) {
         String key = "";
         for (Object s : keys) {
             key += s + ":";
         }
+        key = key.substring(0, key.length() - 1);
         return key;
     }
+
 
     public static class KEYS {
         public static String SERVER_BOOTING = "SERVER_BOOTING";

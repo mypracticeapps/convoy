@@ -2,9 +2,9 @@ package in.sskrishna.gatekeeper.validators;
 
 
 import in.sskrishna.gatekeeper.model.Commit;
-import in.sskrishna.gatekeeper.model.GitRepo;
+import in.sskrishna.gatekeeper.model.MyGit;
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalKeys;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.FormError;
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CommitValidator {
     private final RestErrorBuilder errorBuilder;
-    private final GitRepoRepository gitRepository;
+    private final MyGitRepository gitRepository;
     private final CommitRepo commitRepository;
 
     public CommitValidator(RestErrorBuilder errorBuilder,
-                           GitRepoRepository gitRepository,
+                           MyGitRepository gitRepository,
                            CommitRepo commitRepository) {
         this.errorBuilder = errorBuilder;
         this.gitRepository = gitRepository;
@@ -35,7 +35,7 @@ public class CommitValidator {
         formError.throwIfContainsErrors(422, "repo.form.invalid");
 
         // validate repository
-        GitRepo repo = this.gitRepository.findOne(repoId);
+        MyGit repo = this.gitRepository.findById(repoId).get();
         if (repo == null) {
             formError.rejectField("repoId", repoId, "repo.not.found");
         } else if (!repo.getStatus().isInitialized()) {
@@ -44,11 +44,10 @@ public class CommitValidator {
         formError.throwIfContainsErrors(422, "repo.form.invalid");
 
         // validate commit
-        Object commitObj = this.commitRepository.findOne(fromCommitId);
-        if (commitObj == null) {
+        Commit commit = this.commitRepository.findById(fromCommitId).get();
+        if (commit == null) {
             formError.rejectField("commitId", fromCommitId, "repo.commit.not.found");
         } else {
-            Commit commit = (Commit) commitObj;
             if (!commit.getRepoId().equals(repoId)) {
                 formError.rejectField("commitId", fromCommitId, "repo.commit.mapping.invalid");
             }

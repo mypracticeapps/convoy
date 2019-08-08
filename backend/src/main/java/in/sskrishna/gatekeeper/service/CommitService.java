@@ -2,7 +2,7 @@ package in.sskrishna.gatekeeper.service;
 
 import in.sskrishna.gatekeeper.model.Commit;
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.validators.CommitValidator;
 import io.sskrishna.rest.response.RestErrorBuilder;
 import org.springframework.stereotype.Service;
@@ -14,12 +14,12 @@ import java.util.List;
 public class CommitService {
     private final RestErrorBuilder errorBuilder;
     private final CommitValidator commitValidator;
-    private final GitRepoRepository gitRepository;
+    private final MyGitRepository gitRepository;
     private final CommitRepo commitRepository;
 
     public CommitService(RestErrorBuilder errorBuilder,
                          CommitValidator commitValidator,
-                         GitRepoRepository gitRepository,
+                         MyGitRepository gitRepository,
                          CommitRepo commitRepository) {
         this.errorBuilder = errorBuilder;
         this.gitRepository = gitRepository;
@@ -34,7 +34,7 @@ public class CommitService {
             if (fromCommitId == null) {
                 break;
             }
-            Commit nextCommit = (Commit) this.commitRepository.findOne(fromCommitId);
+            Commit nextCommit = this.commitRepository.findById(fromCommitId).get();
             commitList.add(nextCommit);
             fromCommitId = nextCommit.getSortOrderNext();
         }

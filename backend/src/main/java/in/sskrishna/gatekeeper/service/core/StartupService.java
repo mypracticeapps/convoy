@@ -1,7 +1,7 @@
 package in.sskrishna.gatekeeper.service.core;
 
-import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.model.MyGit;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import in.sskrishna.gatekeeper.service.core.locks.GlobalLockRepo;
 import io.sskrishna.rest.response.ErrorCodeLookup;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 @Service
@@ -21,13 +21,13 @@ import java.util.concurrent.ExecutorService;
 public class StartupService {
     private final ExecutorService globalExecutorService;
     private final ErrorCodeLookup errorCodeLookup;
-    private final GitRepoRepository gitRepository;
+    private final MyGitRepository gitRepository;
     private final GitService gitService;
 
     @Autowired
     public StartupService(@Qualifier("GlobalExecutorService") ExecutorService globalExecutorService,
                           ErrorCodeLookup errorCodeLookup,
-                          GitRepoRepository gitRepository,
+                          MyGitRepository gitRepository,
                           GitService gitService) {
         this.globalExecutorService = globalExecutorService;
         this.errorCodeLookup = errorCodeLookup;
@@ -35,14 +35,14 @@ public class StartupService {
         this.gitService = gitService;
     }
 
-    public void startUp() throws GitAPIException, IOException {
+    public void startUp() {
         try {
             GlobalLockRepo.lock(GlobalLockRepo.KEYS.SERVER_BOOTING);
             ZonedDateTime now = ZonedDateTime.now();
-            log.info("Found {} repositories", this.gitRepository.size());
+            log.info("Found {} repositories", this.gitRepository.count());
 
-            Set<GitRepo> repoSet = this.gitRepository.findAll();
-            for (GitRepo repo : repoSet) {
+            Iterable<MyGit> repoSet = this.gitRepository.findAll();
+            for (MyGit repo : repoSet) {
                 this.gitService.refresh(repo);
             }
 

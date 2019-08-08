@@ -2,12 +2,19 @@ package in.sskrishna.gatekeeper.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 
 import java.time.LocalDateTime;
 import java.util.TreeSet;
 
 @Data
-public class Commit extends Entity {
+public class Commit{
+    @Id
+    private String id;
+    @Version
+    private long version;
+
     private String repoId;
 
     private TreeSet<String> parentIds = new TreeSet<>();

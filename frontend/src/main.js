@@ -20,10 +20,19 @@ import '@/styles/commit.scss'
 
 import '@/services/api.client';
 
+import _ from 'lodash';
+Object.defineProperty(Vue.prototype, '$_', { value: _ });
+
 Vue.config.productionTip = false;
 Vue.use(VueRx);
 
-new Vue({
+import Toasted from 'vue-toasted';
+Vue.use(Toasted);
+
+import {http, httpConfig} from "@/services/api.client"
+httpConfig(router);
+
+let app = new Vue({
   router,
   store,
   render: h => h(App)

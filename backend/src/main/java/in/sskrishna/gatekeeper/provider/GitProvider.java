@@ -1,7 +1,7 @@
 package in.sskrishna.gatekeeper.provider;
 
 import in.sskrishna.gatekeeper.model.Commit;
-import in.sskrishna.gatekeeper.model.GitRepo;
+import in.sskrishna.gatekeeper.model.MyGit;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public interface GitProvider {
 
     public void fetch() throws GitAPIException, IOException, InterruptedException;
 
-    public Set<GitRepo.Branch> getBranches() throws IOException, GitAPIException, InterruptedException;
+    public Set<MyGit.Branch> getBranches() throws IOException, GitAPIException, InterruptedException;
 
     public Map<String, Commit> getCommits() throws IOException, GitAPIException, InterruptedException;
 }

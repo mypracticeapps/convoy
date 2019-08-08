@@ -6,8 +6,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.linkedin.urls.Url;
 import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
-import in.sskrishna.gatekeeper.model.GitRepo;
-import in.sskrishna.gatekeeper.repository.api.GitRepoRepository;
+import in.sskrishna.gatekeeper.model.MyGit;
+import in.sskrishna.gatekeeper.repository.api.MyGitRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -17,29 +17,28 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class GitRepoLoader implements ApplicationRunner {
 
-    private final GitRepoRepository repository;
+    private final MyGitRepository repository;
 
     @Value("${gatekeeper.workingdir}")
     private String workingDir;
 
-    public GitRepoLoader(GitRepoRepository repository) throws IOException {
+    public GitRepoLoader(MyGitRepository repository) throws IOException {
         this.repository = repository;
     }
 
-    public List<GitRepo> load() throws IOException {
+    public List<MyGit> load() throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         ClassPathResource resource = new ClassPathResource("repositories.yml");
-        TypeReference<List<GitRepo>> tRef = new TypeReference<List<GitRepo>>() {
+        TypeReference<List<MyGit>> tRef = new TypeReference<List<MyGit>>() {
         };
 
-        List<GitRepo> repoSet = mapper.readValue(resource.getInputStream(), tRef);
-        repoSet = repoSet.stream().filter(value -> value != null).collect(Collectors.toList()); // null values may load if yaml contains black line
+        List<MyGit> repoSet = mapper.readValue(resource.getInputStream(), tRef);
         repoSet.forEach((conf -> {
             conf.setName(getRepoName(conf.getUrl()));
             conf.setOwner(getOwner(conf.getUrl()));
@@ -68,7 +67,14 @@ public class GitRepoLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        this.load().forEach(gitRepo -> repository.save(gitRepo));
-        log.info("loaded {} git repo configs", this.repository.size());
+        List<MyGit> repoSet = this.load();
+        for (MyGit myGit : repoSet) {
+            Optional<MyGit> oldGit = this.repository.findById(myGit.getId());
+            if (oldGit.isPresent()) {
+                myGit.setVersion(oldGit.get().getVersion());
+            }
+            this.repository.save(myGit);
+        }
+        log.info("loaded {} git repo configs", this.repository.count());
     }
 }
