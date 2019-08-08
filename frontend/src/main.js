@@ -26,6 +26,9 @@ Object.defineProperty(Vue.prototype, '$_', { value: _ });
 Vue.config.productionTip = false;
 Vue.use(VueRx);
 
+import Toasted from 'vue-toasted';
+Vue.use(Toasted);
+
 import {http, httpConfig} from "@/services/api.client"
 httpConfig(router);
 

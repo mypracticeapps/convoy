@@ -8,7 +8,9 @@
         </p>
       </div>
       <div class="commit-meta-data">
-        <p class="font-weight-normal text-right">{{commit.id.substring(0,7)}}</p>
+        <p class="font-weight-bold text-right">
+          {{commit.id.substring(0,7)}}
+        </p>
         <!--              <p class="font-weight-normal text-right">US123456</p>-->
       </div>
     </div>
@@ -22,7 +24,6 @@
       commit: Object
     },
     mounted() {
-      // console.log(this.commit)
     }
   }
 </script>

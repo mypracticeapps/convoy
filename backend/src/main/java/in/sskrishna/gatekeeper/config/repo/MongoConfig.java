@@ -1,6 +1,7 @@
 package in.sskrishna.gatekeeper.config.repo;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import in.sskrishna.gatekeeper.model.Commit;
 import in.sskrishna.gatekeeper.model.MyGit;
 import in.sskrishna.gatekeeper.repository.api.CommitRepo;
@@ -19,12 +20,13 @@ public class MongoConfig {
 
     @Bean
     public MongoClient mongoClient() {
-        return new MongoClient("127.0.0.1", 27017);
+//        return new MongoClient("127.0.0.1", 27017);
+        return new MongoClient(new MongoClientURI("mongodb://devops:Passw0rd@ds119445.mlab.com:19445/test_cj"));
     }
 
     @Bean
     public MongoTemplate mongoTemplate() throws Exception {
-        MongoTemplate mongoTemplate = new MongoTemplate(mongoClient(), "test");
+        MongoTemplate mongoTemplate = new MongoTemplate(mongoClient(), "test_cj");
         mongoTemplate.executeCommand("{ buildInfo: 1 }");
         return mongoTemplate;
     }
